@@ -7,6 +7,11 @@ const modeEl = document.getElementById('mode');
 const modeSelect = document.getElementById('modeSelect');
 const modeForm = document.getElementById('modeForm');
 const manualPwmForm = document.getElementById('manualPwmForm');
+const manualPwmInput = document.getElementById('manualPwmInput');
+const setpointEl = document.getElementById('setpoint');
+const alarmThresholdEl = document.getElementById('alarmThreshold');
+const setpointInput = document.getElementById('setpointInput');
+const alarmInput = document.getElementById('alarmInput');
 const tempChartCtx = document.getElementById('tempChart').getContext('2d');
 
 const maxPoints = 50;
@@ -61,6 +66,16 @@ socket.on('state_update', data => {
         modeEl.textContent = data.mode;
         modeSelect.value = data.mode;
     }
+    if (data.setpoint !== undefined) {
+        const formatted = Number(data.setpoint).toFixed(1);
+        setpointEl.textContent = formatted;
+        setpointInput.placeholder = formatted;
+    }
+    if (data.alarm_threshold !== undefined) {
+        const formatted = Number(data.alarm_threshold).toFixed(1);
+        alarmThresholdEl.textContent = formatted;
+        alarmInput.placeholder = formatted;
+    }
 
     if (data.temperature1 !== undefined && data.temperature2 !== undefined) {
         labels.push(new Date().toLocaleTimeString());
@@ -79,10 +94,10 @@ socket.on('state_update', data => {
 const setpointForm = document.getElementById('setpointForm');
 setpointForm.addEventListener('submit', e => {
     e.preventDefault();
-    const value = parseFloat(document.getElementById('setpointInput').value);
+    const value = parseFloat(setpointInput.value);
     if (!isNaN(value)) {
         socket.emit('set_setpoint', { value });
-        document.getElementById('setpointInput').value = '';
+        setpointInput.value = '';
     }
 });
 
@@ -90,20 +105,20 @@ setpointForm.addEventListener('submit', e => {
 const alarmForm = document.getElementById('alarmForm');
 alarmForm.addEventListener('submit', e => {
     e.preventDefault();
-    const value = parseFloat(document.getElementById('alarmInput').value);
+    const value = parseFloat(alarmInput.value);
     if (!isNaN(value)) {
         socket.emit('set_alarm_threshold', { value });
-        document.getElementById('alarmInput').value = '';
+        alarmInput.value = '';
     }
 });
 
 // send manual pwm
 manualPwmForm.addEventListener('submit', e => {
     e.preventDefault();
-    const value = parseFloat(document.getElementById('manualPwmInput').value);
+    const value = parseFloat(manualPwmInput.value);
     if (!isNaN(value)) {
         socket.emit('set_manual_pwm', { value });
-        document.getElementById('manualPwmInput').value = '';
+        manualPwmInput.value = '';
     }
 });
 
