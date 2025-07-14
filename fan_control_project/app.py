@@ -1,6 +1,7 @@
 """Entry point for the fan control application."""
 
-from controller.sensor_reader import SensorReader
+# Use the dummy sensor reader for development without hardware
+from controller.sensor_reader_dummy import SensorReader
 from controller.pid_controller import PIDController
 from controller.pwm_output import FanPWMController
 from controller.control_loop import ControlLoop
