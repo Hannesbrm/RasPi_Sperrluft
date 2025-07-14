@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>📁 Log-Verwaltung</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #fff;
+            color: #000;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+        h1 {
+            color: inherit;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 12px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .log-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .log-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📁 Gespeicherte Logs</h1>
+
+    {% if logs|length == 0 %}
+        <p>❌ Es sind keine Logs vorhanden.</p>
+    {% else %}
+        <ul>
+            {% for log in logs %}
+                <li>
+                    <span class="log-name">📝 {{ log[0] }}</span>
+                    <div class="log-actions">
+                        <a href="/download/{{ log[0] }}">⬇️ Download</a>
+                        <form action="/delete/{{ log[0] }}" method="post" style="display:inline;">
+                            <button type="submit">🗑️ Löschen</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <a class="back-link" href="/">🔙 Zurück zur Startseite</a>
+</div>
+</body>
+</html>
+
