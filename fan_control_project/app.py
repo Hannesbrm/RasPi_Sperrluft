@@ -21,6 +21,9 @@ def main() -> None:
     state.setpoint = float(cfg.get("setpoint", 0.0))
     state.alarm_threshold = float(cfg.get("alarm_threshold", 0.0))
     state.manual_pwm = float(cfg.get("manual_pwm", 0.0))
+    state.kp = float(cfg.get("kp", 1.0))
+    state.ki = float(cfg.get("ki", 0.1))
+    state.kd = float(cfg.get("kd", 0.0))
 
     # IDs of the connected 1-Wire temperature sensors. Adjust these values for
     # a real setup. Two IDs are expected for temperature1 and temperature2.
@@ -33,9 +36,9 @@ def main() -> None:
     # Basic PID controller using parameters from the configuration.
     pid = PIDController(
         setpoint=state.setpoint,
-        kp=float(cfg.get("kp", 1.0)),
-        ki=float(cfg.get("ki", 0.1)),
-        kd=float(cfg.get("kd", 0.0)),
+        kp=state.kp,
+        ki=state.ki,
+        kd=state.kd,
         sample_time=0.5,
     )
 
@@ -43,6 +46,9 @@ def main() -> None:
 
     control_loop = ControlLoop(state, sensor_reader, pid, pwm_controller)
     control_loop.start()
+
+    # Expose PID controller to the web server for runtime updates
+    server.pid_controller = pid
 
     server.main()
 

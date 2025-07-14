@@ -12,6 +12,10 @@ const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
+const pidForm = document.getElementById('pidForm');
+const kpInput = document.getElementById('kpInput');
+const kiInput = document.getElementById('kiInput');
+const kdInput = document.getElementById('kdInput');
 const tempChartCtx = document.getElementById('tempChart').getContext('2d');
 
 const maxPoints = 50;
@@ -76,6 +80,15 @@ socket.on('state_update', data => {
         alarmThresholdEl.textContent = formatted;
         alarmInput.placeholder = formatted;
     }
+    if (data.kp !== undefined) {
+        kpInput.placeholder = Number(data.kp).toFixed(2);
+    }
+    if (data.ki !== undefined) {
+        kiInput.placeholder = Number(data.ki).toFixed(2);
+    }
+    if (data.kd !== undefined) {
+        kdInput.placeholder = Number(data.kd).toFixed(2);
+    }
 
     if (data.temperature1 !== undefined && data.temperature2 !== undefined) {
         labels.push(new Date().toLocaleTimeString());
@@ -119,6 +132,24 @@ manualPwmForm.addEventListener('submit', e => {
     if (!isNaN(value)) {
         socket.emit('set_manual_pwm', { value });
         manualPwmInput.value = '';
+    }
+});
+
+// send PID parameters
+pidForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const kp = parseFloat(kpInput.value);
+    const ki = parseFloat(kiInput.value);
+    const kd = parseFloat(kdInput.value);
+    const payload = {};
+    if (!isNaN(kp)) payload.kp = kp;
+    if (!isNaN(ki)) payload.ki = ki;
+    if (!isNaN(kd)) payload.kd = kd;
+    if (Object.keys(payload).length > 0) {
+        socket.emit('set_pid_params', payload);
+        kpInput.value = '';
+        kiInput.value = '';
+        kdInput.value = '';
     }
 });
 

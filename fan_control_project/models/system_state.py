@@ -25,6 +25,9 @@ class SystemState:
         mode: Mode = Mode.NORMAL,
         alarm_threshold: float = 0.0,
         manual_pwm: float = 0.0,
+        kp: float = 1.0,
+        ki: float = 0.1,
+        kd: float = 0.0,
     ) -> None:
         self._temperature1 = temperature1
         self._temperature2 = temperature2
@@ -34,6 +37,9 @@ class SystemState:
         self._mode = mode
         self._alarm_threshold = alarm_threshold
         self._manual_pwm = manual_pwm
+        self._kp = kp
+        self._ki = ki
+        self._kd = kd
 
     # Temperatur 1
     @property
@@ -110,6 +116,31 @@ class SystemState:
     def manual_pwm(self, value: float) -> None:
         self._manual_pwm = value
 
+    # PID parameters
+    @property
+    def kp(self) -> float:
+        return self._kp
+
+    @kp.setter
+    def kp(self, value: float) -> None:
+        self._kp = value
+
+    @property
+    def ki(self) -> float:
+        return self._ki
+
+    @ki.setter
+    def ki(self, value: float) -> None:
+        self._ki = value
+
+    @property
+    def kd(self) -> float:
+        return self._kd
+
+    @kd.setter
+    def kd(self, value: float) -> None:
+        self._kd = value
+
     def to_dict(self) -> Dict[str, Any]:
         """Return a dictionary representation of the state."""
 
@@ -122,5 +153,8 @@ class SystemState:
             "mode": self._mode.value,
             "alarm_threshold": self._alarm_threshold,
             "manual_pwm": self._manual_pwm,
+            "kp": self._kp,
+            "ki": self._ki,
+            "kd": self._kd,
         }
 

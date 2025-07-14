@@ -10,6 +10,7 @@ from flask_socketio import SocketIO, emit
 
 from models.system_state import SystemState, Mode
 from config import save_config
+from controller.pid_controller import PIDController
 
 app = Flask(
     __name__,
@@ -23,6 +24,9 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 # Global state object that would normally be updated by a control loop
 state = SystemState()
+
+# Reference to the PID controller (set by app.py)
+pid_controller: PIDController | None = None
 
 # Event used to stop the background thread when the app shuts down
 _stop_event = Event()
@@ -66,6 +70,20 @@ def handle_set_alarm_threshold(data: Dict[str, Any]) -> None:
     """Update the alarm temperature threshold."""
     value = float(data.get("value", 0))
     state.alarm_threshold = value
+    save_config(state)
+
+
+@socketio.on("set_pid_params")
+def handle_set_pid_params(data: Dict[str, Any]) -> None:
+    """Update PID controller parameters."""
+    kp = float(data.get("kp", state.kp))
+    ki = float(data.get("ki", state.ki))
+    kd = float(data.get("kd", state.kd))
+    state.kp = kp
+    state.ki = ki
+    state.kd = kd
+    if pid_controller is not None:
+        pid_controller.pid.tunings = (kp, ki, kd)
     save_config(state)
 
 
