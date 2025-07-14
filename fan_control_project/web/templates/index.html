@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Fan Control</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        socket.on('state_update', (data) => {
+            console.log('State update:', data);
+        });
+    </script>
+</head>
+<body>
+    <h1>Fan Control</h1>
+    <p>Open the browser console to see live updates.</p>
+</body>
+</html>
