@@ -58,6 +58,13 @@ def handle_set_manual_pwm(data: Dict[str, Any]) -> None:
     state.manual_pwm = value
 
 
+@socketio.on("set_alarm_threshold")
+def handle_set_alarm_threshold(data: Dict[str, Any]) -> None:
+    """Update the alarm temperature threshold."""
+    value = float(data.get("value", 0))
+    state.alarm_threshold = value
+
+
 @app.route("/")
 def index() -> str:
     """Serve the main page."""
