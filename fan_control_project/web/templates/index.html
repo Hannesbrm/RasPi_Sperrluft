@@ -17,13 +17,15 @@
     <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
     <div class="value">PWM: <span id="pwm">--</span> %</div>
     <div class="value">Mode: <span id="mode">--</span></div>
+    <div class="value">Solltemperatur: <span id="setpoint">--</span> °C</div>
+    <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
 
     <form id="setpointForm">
-        <label>Solltemperatur: <input type="number" step="0.1" id="setpointInput"></label>
+        <label>Solltemperatur: <input type="number" step="0.1" id="setpointInput" placeholder=""></label>
         <button type="submit">Senden</button>
     </form>
     <form id="alarmForm">
-        <label>Alarmgrenze: <input type="number" step="0.1" id="alarmInput"></label>
+        <label>Alarmgrenze: <input type="number" step="0.1" id="alarmInput" placeholder=""></label>
         <button type="submit">Senden</button>
     </form>
     <form id="manualPwmForm">
