@@ -9,6 +9,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
 from models.system_state import SystemState, Mode
+from config import save_config
 
 app = Flask(
     __name__,
@@ -43,6 +44,7 @@ def handle_connect() -> None:
 def handle_set_setpoint(data: Dict[str, Any]) -> None:
     value = float(data.get("value", 0))
     state.setpoint = value
+    save_config(state)
 
 
 @socketio.on("set_mode")
@@ -56,6 +58,7 @@ def handle_set_mode(data: Dict[str, Any]) -> None:
 def handle_set_manual_pwm(data: Dict[str, Any]) -> None:
     value = float(data.get("value", 0))
     state.manual_pwm = value
+    save_config(state)
 
 
 @socketio.on("set_alarm_threshold")
@@ -63,6 +66,7 @@ def handle_set_alarm_threshold(data: Dict[str, Any]) -> None:
     """Update the alarm temperature threshold."""
     value = float(data.get("value", 0))
     state.alarm_threshold = value
+    save_config(state)
 
 
 @app.route("/")
