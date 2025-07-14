@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Fan Control</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
         .value { margin-bottom: 8px; }
@@ -29,13 +30,18 @@
         <label>Manueller PWM: <input type="number" step="1" min="0" max="100" id="manualPwmInput"></label>
         <button type="submit">Senden</button>
     </form>
-    <label>Modus:
-        <select id="modeSelect">
-            <option value="normal">Normal</option>
-            <option value="alarm">Alarm</option>
-            <option value="manual">Manuell</option>
-        </select>
-    </label>
+    <form id="modeForm">
+        <label>Modus:
+            <select id="modeSelect">
+                <option value="normal">NORMAL</option>
+                <option value="alarm">ALARM</option>
+                <option value="manual">MANUAL</option>
+            </select>
+        </label>
+        <button type="submit">Senden</button>
+    </form>
+
+    <canvas id="tempChart" width="400" height="200"></canvas>
 
     <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>

@@ -5,6 +5,47 @@ const temp2El = document.getElementById('temp2');
 const pwmEl = document.getElementById('pwm');
 const modeEl = document.getElementById('mode');
 const modeSelect = document.getElementById('modeSelect');
+const modeForm = document.getElementById('modeForm');
+const manualPwmForm = document.getElementById('manualPwmForm');
+const tempChartCtx = document.getElementById('tempChart').getContext('2d');
+
+const maxPoints = 50;
+const labels = [];
+const temp1Data = [];
+const temp2Data = [];
+
+const tempChart = new Chart(tempChartCtx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Temperature 1',
+                borderColor: 'red',
+                fill: false,
+                data: temp1Data
+            },
+            {
+                label: 'Temperature 2',
+                borderColor: 'blue',
+                fill: false,
+                data: temp2Data
+            }
+        ]
+    },
+    options: {
+        animation: false,
+        responsive: true,
+        scales: {
+            x: {
+                display: true
+            },
+            y: {
+                display: true
+            }
+        }
+    }
+});
 
 socket.on('state_update', data => {
     if (data.temperature1 !== undefined) {
@@ -19,6 +60,18 @@ socket.on('state_update', data => {
     if (data.mode !== undefined) {
         modeEl.textContent = data.mode;
         modeSelect.value = data.mode;
+    }
+
+    if (data.temperature1 !== undefined && data.temperature2 !== undefined) {
+        labels.push(new Date().toLocaleTimeString());
+        temp1Data.push(parseFloat(data.temperature1));
+        temp2Data.push(parseFloat(data.temperature2));
+        if (labels.length > maxPoints) {
+            labels.shift();
+            temp1Data.shift();
+            temp2Data.shift();
+        }
+        tempChart.update();
     }
 });
 
@@ -45,7 +98,6 @@ alarmForm.addEventListener('submit', e => {
 });
 
 // send manual pwm
-const manualPwmForm = document.getElementById('manualPwmForm');
 manualPwmForm.addEventListener('submit', e => {
     e.preventDefault();
     const value = parseFloat(document.getElementById('manualPwmInput').value);
@@ -56,6 +108,7 @@ manualPwmForm.addEventListener('submit', e => {
 });
 
 // change mode
-modeSelect.addEventListener('change', e => {
-    socket.emit('set_mode', { mode: e.target.value });
+modeForm.addEventListener('submit', e => {
+    e.preventDefault();
+    socket.emit('set_mode', { mode: modeSelect.value });
 });
