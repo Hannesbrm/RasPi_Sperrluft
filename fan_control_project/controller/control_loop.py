@@ -9,7 +9,7 @@ from typing import Optional
 from .sensor_reader import SensorReader
 from .pid_controller import PIDController
 from .pwm_output import FanPWMController
-from ..models import SystemState, Mode
+from models import SystemState, Mode
 
 
 class ControlLoop:

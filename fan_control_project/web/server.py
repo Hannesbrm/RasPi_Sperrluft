@@ -8,7 +8,7 @@ from typing import Any, Dict
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
-from ..models.system_state import SystemState, Mode
+from models.system_state import SystemState, Mode
 
 app = Flask(
     __name__,

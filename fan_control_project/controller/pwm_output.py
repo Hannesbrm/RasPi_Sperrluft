@@ -1,30 +1,43 @@
-import RPi.GPIO as GPIO
+"""PWM controller abstraction used by the control loop."""
+
+try:
+    import RPi.GPIO as GPIO
+    _HAS_GPIO = True
+except Exception:  # pragma: no cover - only triggered off Pi
+    GPIO = None  # type: ignore
+    _HAS_GPIO = False
 
 class FanPWMController:
-    """Simple PWM controller for a fan using RPi.GPIO."""
+    """Control a PWM fan using ``RPi.GPIO`` or a dummy fallback."""
 
     def __init__(self, pin: int = 18, frequency: int = 25) -> None:
-        """Initialize PWM on the given GPIO pin."""
         self.pin = pin
         self.frequency = frequency
         self.pwm = None
 
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.pin, GPIO.OUT)
-        self.pwm = GPIO.PWM(self.pin, self.frequency)
-        self.pwm.start(0)
+        if _HAS_GPIO:
+            GPIO.setwarnings(False)
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(self.pin, GPIO.OUT)
+            self.pwm = GPIO.PWM(self.pin, self.frequency)
+            self.pwm.start(0)
+        else:
+            # Dummy mode when running off the Pi
+            self._value = 0.0
 
     def set_pwm(self, value: float) -> None:
         """Set PWM duty cycle (0.0-100.0)."""
-        if not self.pwm:
-            return
         value = max(0.0, min(100.0, value))
-        self.pwm.ChangeDutyCycle(value)
+        if not _HAS_GPIO:
+            self._value = value
+            return
+
+        if self.pwm:
+            self.pwm.ChangeDutyCycle(value)
 
     def stop(self) -> None:
         """Stop PWM and clean up GPIO."""
-        if self.pwm:
+        if _HAS_GPIO and self.pwm:
             self.pwm.stop()
             GPIO.cleanup(self.pin)
             self.pwm = None
