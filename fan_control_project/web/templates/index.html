@@ -4,15 +4,39 @@
     <meta charset="utf-8">
     <title>Fan Control</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
-    <script>
-        const socket = io();
-        socket.on('state_update', (data) => {
-            console.log('State update:', data);
-        });
-    </script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .value { margin-bottom: 8px; }
+        form { margin-bottom: 10px; }
+    </style>
 </head>
 <body>
     <h1>Fan Control</h1>
-    <p>Open the browser console to see live updates.</p>
+    <div class="value">Temperature 1: <span id="temp1">--</span> °C</div>
+    <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
+    <div class="value">PWM: <span id="pwm">--</span> %</div>
+    <div class="value">Mode: <span id="mode">--</span></div>
+
+    <form id="setpointForm">
+        <label>Solltemperatur: <input type="number" step="0.1" id="setpointInput"></label>
+        <button type="submit">Senden</button>
+    </form>
+    <form id="alarmForm">
+        <label>Alarmgrenze: <input type="number" step="0.1" id="alarmInput"></label>
+        <button type="submit">Senden</button>
+    </form>
+    <form id="manualPwmForm">
+        <label>Manueller PWM: <input type="number" step="1" min="0" max="100" id="manualPwmInput"></label>
+        <button type="submit">Senden</button>
+    </form>
+    <label>Modus:
+        <select id="modeSelect">
+            <option value="normal">Normal</option>
+            <option value="alarm">Alarm</option>
+            <option value="manual">Manuell</option>
+        </select>
+    </label>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
