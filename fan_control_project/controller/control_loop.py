@@ -79,6 +79,10 @@ class ControlLoop:
             if temp1 is not None:
                 self.pid.update_setpoint(self.state.setpoint)
                 pwm_value = self.pid.compute(temp1)
+                # Invert PID output because higher PWM lowers the temperature
+                pwm_value = 100.0 - pwm_value
+                # Clamp to valid duty cycle range
+                pwm_value = max(0.0, min(100.0, pwm_value))
             else:
                 pwm_value = self.state.pwm1
 
