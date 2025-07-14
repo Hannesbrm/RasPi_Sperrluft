@@ -51,5 +51,11 @@ def save_config(state: SystemState) -> None:
     data["setpoint"] = state.setpoint
     data["alarm_threshold"] = state.alarm_threshold
     data["manual_pwm"] = state.manual_pwm
+    if hasattr(state, "kp"):
+        data["kp"] = state.kp
+    if hasattr(state, "ki"):
+        data["ki"] = state.ki
+    if hasattr(state, "kd"):
+        data["kd"] = state.kd
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
