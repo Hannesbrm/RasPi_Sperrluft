@@ -7,8 +7,7 @@ from typing import Any, Dict
 class Mode(Enum):
     """Possible operating modes for the system."""
 
-    NORMAL = "normal"
-    ALARM = "alarm"
+    AUTO = "auto"
     MANUAL = "manual"
 
 
@@ -22,7 +21,7 @@ class SystemState:
         pwm1: float = 0.0,
         pwm2: float = 0.0,
         setpoint: float = 0.0,
-        mode: Mode = Mode.NORMAL,
+        mode: Mode = Mode.AUTO,
         alarm_threshold: float = 0.0,
         manual_pwm: float = 0.0,
         kp: float = 1.0,

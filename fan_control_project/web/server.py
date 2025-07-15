@@ -54,7 +54,7 @@ def handle_set_setpoint(data: Dict[str, Any]) -> None:
 @socketio.on("set_mode")
 def handle_set_mode(data: Dict[str, Any]) -> None:
     mode = data.get("mode")
-    if mode is not None:
+    if mode in ("auto", "manual"):
         state.mode = Mode(mode)
 
 
