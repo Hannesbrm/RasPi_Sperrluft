@@ -10,6 +10,7 @@ const manualPwmForm = document.getElementById('manualPwmForm');
 const manualPwmInput = document.getElementById('manualPwmInput');
 const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
+const alarmStatusEl = document.getElementById('alarmStatus');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
 const pidForm = document.getElementById('pidForm');
@@ -79,6 +80,14 @@ socket.on('state_update', data => {
         const formatted = Number(data.alarm_threshold).toFixed(1);
         alarmThresholdEl.textContent = formatted;
         alarmInput.placeholder = formatted;
+    }
+    if (
+        data.temperature2 !== undefined &&
+        data.alarm_threshold !== undefined
+    ) {
+        const t2 = parseFloat(data.temperature2);
+        const threshold = parseFloat(data.alarm_threshold);
+        alarmStatusEl.textContent = t2 > threshold ? 'ALARM' : 'OK';
     }
     if (data.kp !== undefined) {
         kpInput.placeholder = Number(data.kp).toFixed(2);

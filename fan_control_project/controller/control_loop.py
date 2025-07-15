@@ -69,14 +69,13 @@ class ControlLoop:
 
         if self.state.mode == Mode.MANUAL:
             pwm_value = self.state.manual_pwm
-        elif (
-            self.state.mode == Mode.ALARM
-            and temp2 is not None
-            and temp2 > self.state.alarm_threshold
-        ):
-            pwm_value = self.alarm_pwm
-        else:
-            if temp1 is not None:
+
+        elif self.state.mode == Mode.AUTO:
+            if temp2 is not None and temp2 > self.state.alarm_threshold:
+                # Zustand 2: Alarmverhalten
+                pwm_value = self.alarm_pwm
+            elif temp1 is not None:
+                # Zustand 1: PID
                 self.pid.update_setpoint(self.state.setpoint)
                 pwm_value = self.pid.compute(temp1)
                 # Invert PID output because higher PWM lowers the temperature
