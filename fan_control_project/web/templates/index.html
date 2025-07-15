@@ -3,124 +3,166 @@
 <head>
     <meta charset="utf-8">
     <title>Fan Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f2f2f2;
-  color: #333;
+  font-family: 'Inter', sans-serif;
+  background-color: #f4f6f8;
+  color: #222;
   margin: 0;
   padding: 20px;
+  text-align: center;
 }
 
 header {
-  background-color: #006699;
+  background-color: #0077cc;
   color: white;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
 }
 .header-container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
-
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 1rem;
-  }
-  .chart-zone {
-    grid-column: 1 / -1;
-  }
-  @media (max-width: 768px) {
-    .dashboard-grid {
-      grid-template-columns: 1fr;
-    }
-  }
 
 .card {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  padding: 1rem;
-  margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
 }
 
 .card h2 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tabs button {
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  border: none;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.tabs button.active {
+  background-color: #0077cc;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
 }
 
 label {
   display: block;
-  margin: 0.5rem 0 0.2rem;
-  font-weight: bold;
+  margin: 0.75rem 0 0.3rem;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
 input[type="number"], input[type="text"] {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.6rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  box-sizing: border-box;
 }
 
 button, input[type="submit"] {
-  background-color: #006699;
+  background-color: #0077cc;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
   cursor: pointer;
-  margin-top: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 0.75rem;
+  transition: background-color 0.3s;
 }
 
 button:hover, input[type="submit"]:hover {
-  background-color: #004466;
+  background-color: #005fa3;
 }
 
-
-.alarm-box {
-  padding: 1rem;
-  border-radius: 6px;
-  font-size: 1.2rem;
-  text-align: center;
-  font-weight: bold;
-  transition: background 0.3s, color 0.3s;
-  margin: 0.5rem 0;
-}
-.alarm-box.safe {
-  background: #e0f7e0;
-  color: #2e7d32;
-}
-.alarm-box.danger {
-  background: #ffe0e0;
-  color: #b71c1c;
-}
-.alarm-box.danger .icon {
-  animation: pulse 1s infinite;
-}
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.6; }
-  100% { transform: scale(1); opacity: 1; }
+.feedback {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #0077cc;
+  display: none;
 }
 
-.value {
-  font-size: 1.4rem;
-  margin: 0.5rem 0;
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  margin-top: 0.75rem;
 }
 
-@media (max-width: 600px) {
-  body { padding: 10px; }
-  .card { padding: 0.8rem; }
-  label, input { font-size: 1rem; }
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #0077cc;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
 }
 
 canvas {
@@ -136,71 +178,100 @@ canvas {
 </head>
 <body>
 <header>
-    <div class="header-container">
-        <h1>Sperrluft Steuerung</h1>
-        <div id="alarmIndicator" class="alarm-box safe">
-            <span class="icon">🟢</span> Kein Alarm
-        </div>
+  <div class="header-container">
+    <h1>Sperrluft Steuerung</h1>
+    <div id="alarmIndicator" class="alarm-box safe">
+      <span class="icon">🟢</span> Kein Alarm
     </div>
+  </div>
 </header>
-    <div class="dashboard-grid">
-        <div class="card chart-zone">
-            <h2>Temperatur- &amp; PWM-Verlauf</h2>
-            <canvas id="tempChart" width="400" height="200"></canvas>
-        </div>
 
-        <div class="card">
-            <h2>Status</h2>
-            <div class="value">Temperature 1: <span id="temp1">--</span> °C</div>
-            <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
-            <div class="value">PWM: <span id="pwm">--</span> %</div>
-            <div class="value">Mode: <span id="mode">--</span></div>
-            <div class="value">Solltemperatur: <span id="setpoint">--</span> °C</div>
-        <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
-        </div>
+<div class="card">
+  <h2>Temperatur- &amp; PWM-Verlauf</h2>
+  <canvas id="tempChart" width="400" height="200"></canvas>
+</div>
 
-        <div class="card">
-            <h2>Einstellungen</h2>
-            <form id="setpointForm">
-                <label for="setpointInput">Solltemperatur</label>
-                <input type="number" step="0.1" id="setpointInput" placeholder="">
-                <input type="submit" value="Senden">
-            </form>
-            <form id="alarmForm">
-                <label for="alarmInput">Alarmgrenze</label>
-                <input type="number" step="0.1" id="alarmInput" placeholder="">
-                <input type="submit" value="Senden">
-            </form>
-            <label>
-                <input type="checkbox" id="modeToggle">
-                Manueller Modus
-            </label>
-            <form id="manualPwmForm" style="display: none;">
-                <label for="manualPwmInput">Manueller PWM</label>
-                <input type="number" step="1" min="0" max="100" id="manualPwmInput">
-                <input type="submit" value="Senden">
-            </form>
-            <form id="alarmPwmForm">
-                <label for="alarmPwmInput">PWM im Alarmmodus (%)</label>
-                <input type="number" step="1" min="0" max="100" id="alarmPwmInput">
-                <input type="submit" value="Senden">
-            </form>
-        </div>
+<div class="tabs">
+  <button class="tab-button active" data-tab="statusTab">Status</button>
+  <button class="tab-button" data-tab="settingsTab">Einstellungen</button>
+</div>
 
-        <div class="card">
-            <h2>PID-Werte</h2>
-            <form id="pidForm">
-                <label for="kpInput">Kp</label>
-                <input type="number" step="0.01" id="kpInput" placeholder="">
-                <label for="kiInput">Ki</label>
-                <input type="number" step="0.01" id="kiInput" placeholder="">
-                <label for="kdInput">Kd</label>
-                <input type="number" step="0.01" id="kdInput" placeholder="">
-                <input type="submit" value="Senden">
-            </form>
-        </div>
-    </div>
+<div id="statusTab" class="tab-content active">
+  <div class="card">
+    <h2>Status</h2>
+    <div class="value">Temperature 1: <span id="temp1">--</span> °C</div>
+    <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
+    <div class="value">PWM: <span id="pwm">--</span> %</div>
+    <div class="value">Mode: <span id="mode">--</span></div>
+    <div class="value">Solltemperatur: <span id="setpoint">--</span> °C</div>
+    <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
 
-    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <hr style="margin: 1.5rem 0;">
+
+    <label for="modeToggle">Manueller Modus</label>
+    <label class="switch">
+      <input type="checkbox" id="modeToggle">
+      <span class="slider"></span>
+    </label>
+
+    <form id="manualPwmForm" style="display: none;">
+      <label for="manualPwmInput">Manueller PWM</label>
+      <input type="number" step="1" min="0" max="100" id="manualPwmInput">
+      <input type="submit" value="Senden">
+      <div class="feedback" id="manualFeedback">✔️ PWM gesendet</div>
+    </form>
+  </div>
+</div>
+
+<div id="settingsTab" class="tab-content">
+  <div class="card">
+    <h2>Einstellungen</h2>
+    <form id="setpointForm">
+      <label for="setpointInput">Solltemperatur</label>
+      <input type="number" step="0.1" id="setpointInput" placeholder="">
+      <input type="submit" value="Senden">
+      <div class="feedback" id="setpointFeedback">✔️ Sollwert gesendet</div>
+    </form>
+    <form id="alarmForm">
+      <label for="alarmInput">Alarmgrenze</label>
+      <input type="number" step="0.1" id="alarmInput" placeholder="">
+      <input type="submit" value="Senden">
+      <div class="feedback" id="alarmFeedback">✔️ Alarmgrenze gesendet</div>
+    </form>
+    <form id="alarmPwmForm">
+      <label for="alarmPwmInput">PWM im Alarmmodus (%)</label>
+      <input type="number" step="1" min="0" max="100" id="alarmPwmInput">
+      <input type="submit" value="Senden">
+      <div class="feedback" id="alarmPwmFeedback">✔️ Alarm-PWM gesendet</div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>PID-Werte</h2>
+    <form id="pidForm">
+      <label for="kpInput">Kp</label>
+      <input type="number" step="0.01" id="kpInput" placeholder="">
+      <label for="kiInput">Ki</label>
+      <input type="number" step="0.01" id="kiInput" placeholder="">
+      <label for="kdInput">Kd</label>
+      <input type="number" step="0.01" id="kdInput" placeholder="">
+      <input type="submit" value="Senden">
+      <div class="feedback" id="pidFeedback">✔️ PID-Werte gesendet</div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      button.classList.add('active');
+      document.getElementById(button.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>

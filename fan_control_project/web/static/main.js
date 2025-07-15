@@ -63,7 +63,7 @@ const tempChart = new Chart(tempChartCtx, {
                 position: 'left',
                 title: {
                     display: true,
-                    text: 'Temperatur (\u00b0C)'
+                    text: 'Temperatur (°C)'
                 }
             },
             y1: {
@@ -81,6 +81,16 @@ const tempChart = new Chart(tempChartCtx, {
         }
     }
 });
+
+function showFeedback(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.style.display = 'block';
+        setTimeout(() => {
+            el.style.display = 'none';
+        }, 2000);
+    }
+}
 
 socket.on('state_update', data => {
     if (data.temperature1 !== undefined) {
@@ -157,49 +167,46 @@ socket.on('state_update', data => {
     }
 });
 
-// send setpoint
-const setpointForm = document.getElementById('setpointForm');
 setpointForm.addEventListener('submit', e => {
     e.preventDefault();
     const value = parseFloat(setpointInput.value);
     if (!isNaN(value)) {
         socket.emit('set_setpoint', { value });
         setpointInput.value = '';
+        showFeedback('setpointFeedback');
     }
 });
 
-// send alarm threshold
-const alarmForm = document.getElementById('alarmForm');
 alarmForm.addEventListener('submit', e => {
     e.preventDefault();
     const value = parseFloat(alarmInput.value);
     if (!isNaN(value)) {
         socket.emit('set_alarm_threshold', { value });
         alarmInput.value = '';
+        showFeedback('alarmFeedback');
     }
 });
 
-// send manual pwm
 manualPwmForm.addEventListener('submit', e => {
     e.preventDefault();
     const value = parseFloat(manualPwmInput.value);
     if (!isNaN(value)) {
         socket.emit('set_manual_pwm', { value });
         manualPwmInput.value = '';
+        showFeedback('manualFeedback');
     }
 });
 
-// send alarm pwm value
 alarmPwmForm.addEventListener('submit', e => {
     e.preventDefault();
     const value = parseFloat(alarmPwmInput.value);
     if (!isNaN(value)) {
         socket.emit('set_alarm_pwm', { value });
         alarmPwmInput.value = '';
+        showFeedback('alarmPwmFeedback');
     }
 });
 
-// send PID parameters
 pidForm.addEventListener('submit', e => {
     e.preventDefault();
     const kp = parseFloat(kpInput.value);
@@ -214,12 +221,13 @@ pidForm.addEventListener('submit', e => {
         kpInput.value = '';
         kiInput.value = '';
         kdInput.value = '';
+        showFeedback('pidFeedback');
     }
 });
 
-// change mode
 modeToggle.addEventListener('change', () => {
     const mode = modeToggle.checked ? 'manual' : 'auto';
     socket.emit('set_mode', { mode });
     manualPwmForm.style.display = modeToggle.checked ? 'block' : 'none';
 });
+
