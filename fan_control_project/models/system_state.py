@@ -24,6 +24,7 @@ class SystemState:
         mode: Mode = Mode.AUTO,
         alarm_threshold: float = 0.0,
         manual_pwm: float = 0.0,
+        alarm_pwm: float = 100.0,
         kp: float = 1.0,
         ki: float = 0.1,
         kd: float = 0.0,
@@ -36,6 +37,7 @@ class SystemState:
         self._mode = mode
         self._alarm_threshold = alarm_threshold
         self._manual_pwm = manual_pwm
+        self._alarm_pwm = alarm_pwm
         self._kp = kp
         self._ki = ki
         self._kd = kd
@@ -115,6 +117,15 @@ class SystemState:
     def manual_pwm(self, value: float) -> None:
         self._manual_pwm = value
 
+    # PWM-Wert im Alarmmodus
+    @property
+    def alarm_pwm(self) -> float:
+        return self._alarm_pwm
+
+    @alarm_pwm.setter
+    def alarm_pwm(self, value: float) -> None:
+        self._alarm_pwm = value
+
     # PID parameters
     @property
     def kp(self) -> float:
@@ -152,6 +163,7 @@ class SystemState:
             "mode": self._mode.value,
             "alarm_threshold": self._alarm_threshold,
             "manual_pwm": self._manual_pwm,
+            "alarm_pwm": self._alarm_pwm,
             "kp": self._kp,
             "ki": self._ki,
             "kd": self._kd,

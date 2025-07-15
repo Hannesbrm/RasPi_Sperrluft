@@ -28,7 +28,7 @@ class ControlLoop:
         self.sensor_reader = sensor_reader
         self.pid = pid_controller
         self.pwm = pwm_controller
-        self.alarm_pwm = alarm_pwm
+        self.state.alarm_pwm = alarm_pwm
         self.interval = interval
 
         self._thread: Optional[threading.Thread] = None
@@ -73,7 +73,7 @@ class ControlLoop:
         elif self.state.mode == Mode.AUTO:
             if temp2 is not None and temp2 > self.state.alarm_threshold:
                 # Zustand 2: Alarmverhalten
-                pwm_value = self.alarm_pwm
+                pwm_value = self.state.alarm_pwm
             elif temp1 is not None:
                 # Zustand 1: PID
                 self.pid.update_setpoint(self.state.setpoint)

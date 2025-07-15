@@ -21,6 +21,11 @@ header {
   text-align: center;
   margin-bottom: 1rem;
 }
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
   .dashboard-grid {
     display: grid;
@@ -43,6 +48,13 @@ header {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   padding: 1rem;
   margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card h2 {
+  margin-bottom: 0.5rem;
 }
 
 label {
@@ -101,7 +113,7 @@ button:hover, input[type="submit"]:hover {
 }
 
 .value {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   margin: 0.5rem 0;
 }
 
@@ -123,9 +135,14 @@ canvas {
     </style>
 </head>
 <body>
-    <header>
+<header>
+    <div class="header-container">
         <h1>Sperrluft Steuerung</h1>
-    </header>
+        <div id="alarmIndicator" class="alarm-box safe">
+            <span class="icon">🟢</span> Kein Alarm
+        </div>
+    </div>
+</header>
     <div class="dashboard-grid">
         <div class="card chart-zone">
             <h2>Temperatur- &amp; PWM-Verlauf</h2>
@@ -139,10 +156,7 @@ canvas {
             <div class="value">PWM: <span id="pwm">--</span> %</div>
             <div class="value">Mode: <span id="mode">--</span></div>
             <div class="value">Solltemperatur: <span id="setpoint">--</span> °C</div>
-            <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
-            <div id="alarmIndicator" class="alarm-box safe">
-                <span class="icon">🟢</span> Kein Alarm
-            </div>
+        <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
         </div>
 
         <div class="card">
@@ -164,6 +178,11 @@ canvas {
             <form id="manualPwmForm" style="display: none;">
                 <label for="manualPwmInput">Manueller PWM</label>
                 <input type="number" step="1" min="0" max="100" id="manualPwmInput">
+                <input type="submit" value="Senden">
+            </form>
+            <form id="alarmPwmForm">
+                <label for="alarmPwmInput">PWM im Alarmmodus (%)</label>
+                <input type="number" step="1" min="0" max="100" id="alarmPwmInput">
                 <input type="submit" value="Senden">
             </form>
         </div>
