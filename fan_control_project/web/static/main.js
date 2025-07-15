@@ -121,6 +121,9 @@ socket.on('state_update', data => {
     if (data.alarm_pwm !== undefined) {
         alarmPwmInput.placeholder = Number(data.alarm_pwm).toFixed(0);
     }
+    if (data.manual_pwm !== undefined) {
+        manualPwmInput.placeholder = Number(data.manual_pwm).toFixed(0);
+    }
     if (
         data.temperature2 !== undefined &&
         data.alarm_threshold !== undefined
