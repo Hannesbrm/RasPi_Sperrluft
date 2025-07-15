@@ -7,6 +7,8 @@ const modeEl = document.getElementById('mode');
 const modeToggle = document.getElementById('modeToggle');
 const manualPwmForm = document.getElementById('manualPwmForm');
 const manualPwmInput = document.getElementById('manualPwmInput');
+const alarmPwmForm = document.getElementById('alarmPwmForm');
+const alarmPwmInput = document.getElementById('alarmPwmInput');
 const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
 const alarmIndicatorEl = document.getElementById('alarmIndicator');
@@ -58,11 +60,21 @@ const tempChart = new Chart(tempChartCtx, {
                 display: true
             },
             y: {
-                display: true
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Temperatur (\u00b0C)'
+                }
             },
             y1: {
-                display: true,
                 position: 'right',
+                title: {
+                    display: true,
+                    text: 'PWM (%)'
+                },
+                grid: {
+                    drawOnChartArea: false
+                },
                 suggestedMin: 0,
                 suggestedMax: 100
             }
@@ -95,6 +107,9 @@ socket.on('state_update', data => {
         const formatted = Number(data.alarm_threshold).toFixed(1);
         alarmThresholdEl.textContent = formatted;
         alarmInput.placeholder = formatted;
+    }
+    if (data.alarm_pwm !== undefined) {
+        alarmPwmInput.placeholder = Number(data.alarm_pwm).toFixed(0);
     }
     if (
         data.temperature2 !== undefined &&
@@ -171,6 +186,16 @@ manualPwmForm.addEventListener('submit', e => {
     if (!isNaN(value)) {
         socket.emit('set_manual_pwm', { value });
         manualPwmInput.value = '';
+    }
+});
+
+// send alarm pwm value
+alarmPwmForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const value = parseFloat(alarmPwmInput.value);
+    if (!isNaN(value)) {
+        socket.emit('set_alarm_pwm', { value });
+        alarmPwmInput.value = '';
     }
 });
 

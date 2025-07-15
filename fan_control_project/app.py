@@ -21,6 +21,7 @@ def main() -> None:
     state.setpoint = float(cfg.get("setpoint", 0.0))
     state.alarm_threshold = float(cfg.get("alarm_threshold", 0.0))
     state.manual_pwm = float(cfg.get("manual_pwm", 0.0))
+    state.alarm_pwm = float(cfg.get("alarm_pwm", 100.0))
     state.kp = float(cfg.get("kp", 1.0))
     state.ki = float(cfg.get("ki", 0.1))
     state.kd = float(cfg.get("kd", 0.0))
@@ -44,7 +45,7 @@ def main() -> None:
 
     pwm_controller = FanPWMController()
 
-    control_loop = ControlLoop(state, sensor_reader, pid, pwm_controller)
+    control_loop = ControlLoop(state, sensor_reader, pid, pwm_controller, state.alarm_pwm)
     control_loop.start()
 
     # Expose PID controller to the web server for runtime updates
