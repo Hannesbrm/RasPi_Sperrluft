@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Fan Control</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -24,11 +25,19 @@ header {
   margin-bottom: 1.5rem;
   border-radius: 0.5rem;
 }
+
 .header-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .card {
@@ -38,6 +47,8 @@ header {
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   text-align: left;
+  max-width: 700px;
+  width: 100%;
 }
 
 .card h2 {
@@ -64,6 +75,10 @@ header {
   transition: background-color 0.3s, color 0.3s;
 }
 
+.tabs button i {
+  margin-right: 0.4rem;
+}
+
 .tabs button.active {
   background-color: #0077cc;
   color: white;
@@ -71,10 +86,14 @@ header {
 
 .tab-content {
   display: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .tab-content.active {
-  display: block;
+  display: flex;
 }
 
 label {
@@ -118,7 +137,6 @@ button:hover, input[type="submit"]:hover {
   display: none;
 }
 
-/* Toggle switch */
 .switch {
   position: relative;
   display: inline-block;
@@ -179,43 +197,49 @@ canvas {
 <body>
 <header>
   <div class="header-container">
-    <h1>Sperrluft Steuerung</h1>
+    <h1><i class="fas fa-fan"></i> Sperrluft Steuerung</h1>
     <div id="alarmIndicator" class="alarm-box safe">
       <span class="icon">🟢</span> Kein Alarm
     </div>
   </div>
 </header>
 
-<div class="card">
-  <h2>Temperatur- &amp; PWM-Verlauf</h2>
-  <canvas id="tempChart" width="400" height="200"></canvas>
-</div>
+<main>
+  <div class="card">
+    <h2><i class="fas fa-chart-line"></i> Temperatur- &amp; PWM-Verlauf</h2>
+    <canvas id="tempChart" width="400" height="200"></canvas>
+  </div>
 
-<div class="tabs">
-  <button class="tab-button active" data-tab="statusTab">Status</button>
-  <button class="tab-button" data-tab="settingsTab">Einstellungen</button>
-</div>
+  <div class="tabs">
+    <button class="tab-button active" data-tab="statusTab">
+      <i class="fas fa-info-circle"></i> Status
+    </button>
+    <button class="tab-button" data-tab="settingsTab">
+      <i class="fas fa-sliders-h"></i> Einstellungen
+    </button>
+  </div>
+</main>
 
 <div id="statusTab" class="tab-content active">
   <div class="card">
-    <h2>Status</h2>
-    <div class="value">Temperature 1: <span id="temp1">--</span> °C</div>
-    <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
-    <div class="value">PWM: <span id="pwm">--</span> %</div>
-    <div class="value">Mode: <span id="mode">--</span></div>
-    <div class="value">Solltemperatur: <span id="setpoint">--</span> °C</div>
-    <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
+    <h2><i class="fas fa-info-circle"></i> Status</h2>
+    <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 1: <span id="temp1">--</span> °C</div>
+    <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 2: <span id="temp2">--</span> °C</div>
+    <div class="value"><i class="fas fa-tachometer-alt"></i> PWM: <span id="pwm">--</span> %</div>
+    <div class="value"><i class="fas fa-cogs"></i> Mode: <span id="mode">--</span></div>
+    <div class="value"><i class="fas fa-bullseye"></i> Solltemperatur: <span id="setpoint">--</span> °C</div>
+    <div class="value"><i class="fas fa-exclamation-triangle"></i> Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
 
     <hr style="margin: 1.5rem 0;">
 
-    <label for="modeToggle">Manueller Modus</label>
+    <label for="modeToggle"><i class="fas fa-hand-paper"></i> Manueller Modus</label>
     <label class="switch">
       <input type="checkbox" id="modeToggle">
       <span class="slider"></span>
     </label>
 
     <form id="manualPwmForm" style="display: none;">
-      <label for="manualPwmInput">Manueller PWM</label>
+      <label for="manualPwmInput"><i class="fas fa-tachometer-alt"></i> Manueller PWM</label>
       <input type="number" step="1" min="0" max="100" id="manualPwmInput">
       <input type="submit" value="Senden">
       <div class="feedback" id="manualFeedback">✔️ PWM gesendet</div>
@@ -225,21 +249,21 @@ canvas {
 
 <div id="settingsTab" class="tab-content">
   <div class="card">
-    <h2>Einstellungen</h2>
+    <h2><i class="fas fa-sliders-h"></i> Einstellungen</h2>
     <form id="setpointForm">
-      <label for="setpointInput">Solltemperatur</label>
+      <label for="setpointInput"><i class="fas fa-bullseye"></i> Solltemperatur</label>
       <input type="number" step="0.1" id="setpointInput" placeholder="">
       <input type="submit" value="Senden">
       <div class="feedback" id="setpointFeedback">✔️ Sollwert gesendet</div>
     </form>
     <form id="alarmForm">
-      <label for="alarmInput">Alarmgrenze</label>
+      <label for="alarmInput"><i class="fas fa-exclamation-triangle"></i> Alarmgrenze</label>
       <input type="number" step="0.1" id="alarmInput" placeholder="">
       <input type="submit" value="Senden">
       <div class="feedback" id="alarmFeedback">✔️ Alarmgrenze gesendet</div>
     </form>
     <form id="alarmPwmForm">
-      <label for="alarmPwmInput">PWM im Alarmmodus (%)</label>
+      <label for="alarmPwmInput"><i class="fas fa-bolt"></i> PWM im Alarmmodus (%)</label>
       <input type="number" step="1" min="0" max="100" id="alarmPwmInput">
       <input type="submit" value="Senden">
       <div class="feedback" id="alarmPwmFeedback">✔️ Alarm-PWM gesendet</div>
@@ -247,7 +271,7 @@ canvas {
   </div>
 
   <div class="card">
-    <h2>PID-Werte</h2>
+    <h2><i class="fas fa-tools"></i> PID-Werte</h2>
     <form id="pidForm">
       <label for="kpInput">Kp</label>
       <input type="number" step="0.01" id="kpInput" placeholder="">
@@ -275,3 +299,4 @@ canvas {
 <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
+
