@@ -6,45 +6,126 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .value { margin-bottom: 8px; }
-        form { margin-bottom: 10px; }
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  background-color: #006699;
+  color: white;
+  padding: 1rem;
+  margin: 0;
+}
+
+.container {
+  padding: 1rem;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.section {
+  background-color: white;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+label {
+  display: block;
+  margin: 0.5rem 0 0.2rem;
+  font-weight: bold;
+}
+
+input[type="number"], input[type="text"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+button, input[type="submit"] {
+  background-color: #006699;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+button:hover, input[type="submit"]:hover {
+  background-color: #004466;
+}
+
+.value {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+}
+
+canvas {
+  width: 100% !important;
+  height: 400px !important;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
     </style>
 </head>
 <body>
     <h1>Fan Control</h1>
-    <div class="value">Temperature 1: <span id="temp1">--</span> °C</div>
-    <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
-    <div class="value">PWM: <span id="pwm">--</span> %</div>
-    <div class="value">Mode: <span id="mode">--</span></div>
-    <div class="value">Solltemperatur: <span id="setpoint">--</span> °C</div>
-    <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
+    <div class="container">
+        <div class="section">
+            <div class="value">Temperature 1: <span id="temp1">--</span> °C</div>
+            <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
+            <div class="value">PWM: <span id="pwm">--</span> %</div>
+            <div class="value">Mode: <span id="mode">--</span></div>
+            <div class="value">Solltemperatur: <span id="setpoint">--</span> °C</div>
+            <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
+            <div class="value">Alarmstatus: <span id="alarmStatus">--</span></div>
+        </div>
 
-    <form id="setpointForm">
-        <label>Solltemperatur: <input type="number" step="0.1" id="setpointInput" placeholder=""></label>
-        <button type="submit">Senden</button>
-    </form>
-    <form id="alarmForm">
-        <label>Alarmgrenze: <input type="number" step="0.1" id="alarmInput" placeholder=""></label>
-        <button type="submit">Senden</button>
-    </form>
-    <form id="manualPwmForm" style="display: none;">
-        <label>Manueller PWM: <input type="number" step="1" min="0" max="100" id="manualPwmInput"></label>
-        <button type="submit">Senden</button>
-    </form>
-    <form id="pidForm">
-        <label>Kp: <input type="number" step="0.01" id="kpInput" placeholder=""></label>
-        <label>Ki: <input type="number" step="0.01" id="kiInput" placeholder=""></label>
-        <label>Kd: <input type="number" step="0.01" id="kdInput" placeholder=""></label>
-        <button type="submit">Senden</button>
-    </form>
-    <label>
-        <input type="checkbox" id="modeToggle">
-        Manueller Modus
-    </label>
-    <div class="value">Alarmstatus: <span id="alarmStatus">--</span></div>
+        <div class="section">
+            <form id="setpointForm">
+                <label for="setpointInput">Solltemperatur</label>
+                <input type="number" step="0.1" id="setpointInput" placeholder="">
+                <input type="submit" value="Senden">
+            </form>
+            <form id="alarmForm">
+                <label for="alarmInput">Alarmgrenze</label>
+                <input type="number" step="0.1" id="alarmInput" placeholder="">
+                <input type="submit" value="Senden">
+            </form>
+            <form id="manualPwmForm" style="display: none;">
+                <label for="manualPwmInput">Manueller PWM</label>
+                <input type="number" step="1" min="0" max="100" id="manualPwmInput">
+                <input type="submit" value="Senden">
+            </form>
+            <form id="pidForm">
+                <label for="kpInput">Kp</label>
+                <input type="number" step="0.01" id="kpInput" placeholder="">
+                <label for="kiInput">Ki</label>
+                <input type="number" step="0.01" id="kiInput" placeholder="">
+                <label for="kdInput">Kd</label>
+                <input type="number" step="0.01" id="kdInput" placeholder="">
+                <input type="submit" value="Senden">
+            </form>
+            <label>
+                <input type="checkbox" id="modeToggle">
+                Manueller Modus
+            </label>
+        </div>
 
-    <canvas id="tempChart" width="400" height="200"></canvas>
+        <div class="section">
+            <canvas id="tempChart" width="400" height="200"></canvas>
+        </div>
+    </div>
 
     <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
