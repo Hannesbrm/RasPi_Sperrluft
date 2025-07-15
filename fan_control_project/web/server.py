@@ -73,6 +73,14 @@ def handle_set_alarm_pwm(data: Dict[str, Any]) -> None:
     save_config(state)
 
 
+@socketio.on("set_min_pwm")
+def handle_set_min_pwm(data: Dict[str, Any]) -> None:
+    """Update the minimal PWM value."""
+    value = float(data.get("value", 0))
+    state.min_pwm = value
+    save_config(state)
+
+
 @socketio.on("set_alarm_threshold")
 def handle_set_alarm_threshold(data: Dict[str, Any]) -> None:
     """Update the alarm temperature threshold."""

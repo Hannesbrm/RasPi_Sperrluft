@@ -22,6 +22,7 @@ def main() -> None:
     state.alarm_threshold = float(cfg.get("alarm_threshold", 0.0))
     state.manual_pwm = float(cfg.get("manual_pwm", 0.0))
     state.alarm_pwm = float(cfg.get("alarm_pwm", 100.0))
+    state.min_pwm = float(cfg.get("min_pwm", 20.0))
     state.kp = float(cfg.get("kp", 1.0))
     state.ki = float(cfg.get("ki", 0.1))
     state.kd = float(cfg.get("kd", 0.0))
@@ -43,7 +44,7 @@ def main() -> None:
         sample_time=0.5,
     )
 
-    pwm_controller = FanPWMController()
+    pwm_controller = FanPWMController(min_pwm=state.min_pwm)
 
     control_loop = ControlLoop(state, sensor_reader, pid, pwm_controller, state.alarm_pwm)
     control_loop.start()
