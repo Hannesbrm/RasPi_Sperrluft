@@ -11,6 +11,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "alarm_threshold": 0.0,
     "manual_pwm": 0.0,
     "alarm_pwm": 100.0,
+    "min_pwm": 20.0,
     "kp": 1.0,
     "ki": 0.1,
     "kd": 0.0,
@@ -54,6 +55,8 @@ def save_config(state: SystemState) -> None:
     data["manual_pwm"] = state.manual_pwm
     if hasattr(state, "alarm_pwm"):
         data["alarm_pwm"] = state.alarm_pwm
+    if hasattr(state, "min_pwm"):
+        data["min_pwm"] = state.min_pwm
     if hasattr(state, "kp"):
         data["kp"] = state.kp
     if hasattr(state, "ki"):

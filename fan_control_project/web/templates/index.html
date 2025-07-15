@@ -267,6 +267,12 @@ canvas {
       <input type="submit" value="Senden">
       <div class="feedback" id="alarmPwmFeedback">✔️ Alarm-PWM gesendet</div>
     </form>
+    <form id="minPwmForm">
+      <label for="minPwmInput"><i class="fas fa-arrow-down"></i> Minimaler PWM (%)</label>
+      <input type="number" step="1" min="0" max="100" id="minPwmInput" placeholder="">
+      <input type="submit" value="Senden">
+      <div class="feedback" id="minPwmFeedback">✔️ Minimal-PWM gesendet</div>
+    </form>
   </div>
 
   <div class="card">

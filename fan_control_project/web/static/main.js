@@ -9,6 +9,8 @@ const manualPwmForm = document.getElementById('manualPwmForm');
 const manualPwmInput = document.getElementById('manualPwmInput');
 const alarmPwmForm = document.getElementById('alarmPwmForm');
 const alarmPwmInput = document.getElementById('alarmPwmInput');
+const minPwmForm = document.getElementById('minPwmForm');
+const minPwmInput = document.getElementById('minPwmInput');
 const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
 const alarmIndicatorEl = document.getElementById('alarmIndicator');
@@ -121,6 +123,9 @@ socket.on('state_update', data => {
     if (data.alarm_pwm !== undefined) {
         alarmPwmInput.placeholder = Number(data.alarm_pwm).toFixed(0);
     }
+    if (data.min_pwm !== undefined) {
+        minPwmInput.placeholder = Number(data.min_pwm).toFixed(0);
+    }
     if (data.manual_pwm !== undefined) {
         manualPwmInput.placeholder = Number(data.manual_pwm).toFixed(0);
     }
@@ -207,6 +212,16 @@ alarmPwmForm.addEventListener('submit', e => {
         socket.emit('set_alarm_pwm', { value });
         alarmPwmInput.value = '';
         showFeedback('alarmPwmFeedback');
+    }
+});
+
+minPwmForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const value = parseFloat(minPwmInput.value);
+    if (!isNaN(value)) {
+        socket.emit('set_min_pwm', { value });
+        minPwmInput.value = '';
+        showFeedback('minPwmFeedback');
     }
 });
 

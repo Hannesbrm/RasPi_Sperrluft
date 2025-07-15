@@ -85,5 +85,6 @@ class ControlLoop:
             else:
                 pwm_value = self.state.pwm1
 
-        self.pwm.set_pwm(pwm_value)
-        self.state.pwm1 = pwm_value
+        final_value = max(self.pwm.min_pwm, pwm_value)
+        self.pwm.set_pwm(final_value)
+        self.state.pwm1 = final_value
