@@ -23,6 +23,7 @@ class ControlLoop:
         pwm_controller: FanPWMController,
         alarm_pwm: float = 100.0,
         interval: float = 0.5,
+        sensor_mapping: dict[str, str] | None = None,
     ) -> None:
         self.state = state
         self.sensor_reader = sensor_reader
@@ -30,6 +31,7 @@ class ControlLoop:
         self.pwm = pwm_controller
         self.state.alarm_pwm = alarm_pwm
         self.interval = interval
+        self.sensor_mapping = sensor_mapping or {}
 
         self._thread: Optional[threading.Thread] = None
         self._running = False
@@ -57,8 +59,9 @@ class ControlLoop:
 
     def _update_once(self) -> None:
         """Read sensors, compute PWM value and update state."""
-        temp1 = self.sensor_reader.read_temperature(0)
-        temp2 = self.sensor_reader.read_temperature(1)
+        temps = self.sensor_reader.read_all()
+        temp1 = temps.get(self.sensor_mapping.get("temperature1"))
+        temp2 = temps.get(self.sensor_mapping.get("temperature2"))
 
         if temp1 is not None:
             self.state.temperature1 = temp1
