@@ -22,6 +22,7 @@ const maxPoints = 50;
 const labels = [];
 const temp1Data = [];
 const temp2Data = [];
+const pwmData = [];
 
 const tempChart = new Chart(tempChartCtx, {
     type: 'line',
@@ -39,6 +40,13 @@ const tempChart = new Chart(tempChartCtx, {
                 borderColor: 'blue',
                 fill: false,
                 data: temp2Data
+            },
+            {
+                label: 'PWM',
+                borderColor: 'green',
+                fill: false,
+                data: pwmData,
+                yAxisID: 'y1'
             }
         ]
     },
@@ -51,6 +59,12 @@ const tempChart = new Chart(tempChartCtx, {
             },
             y: {
                 display: true
+            },
+            y1: {
+                display: true,
+                position: 'right',
+                suggestedMin: 0,
+                suggestedMax: 100
             }
         }
     }
@@ -109,14 +123,20 @@ socket.on('state_update', data => {
         kdInput.placeholder = Number(data.kd).toFixed(2);
     }
 
-    if (data.temperature1 !== undefined && data.temperature2 !== undefined) {
+    if (
+        data.temperature1 !== undefined &&
+        data.temperature2 !== undefined &&
+        data.pwm1 !== undefined
+    ) {
         labels.push(new Date().toLocaleTimeString());
         temp1Data.push(parseFloat(data.temperature1));
         temp2Data.push(parseFloat(data.temperature2));
+        pwmData.push(parseFloat(data.pwm1));
         if (labels.length > maxPoints) {
             labels.shift();
             temp1Data.shift();
             temp2Data.shift();
+            pwmData.shift();
         }
         tempChart.update();
     }
