@@ -22,11 +22,20 @@ header {
   margin-bottom: 1rem;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1rem;
-}
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1rem;
+  }
+  .chart-zone {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 768px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 
 .card {
   background: white;
@@ -117,8 +126,14 @@ canvas {
     <header>
         <h1>Sperrluft Steuerung</h1>
     </header>
-    <div class="layout">
+    <div class="dashboard-grid">
+        <div class="card chart-zone">
+            <h2>Temperatur- &amp; PWM-Verlauf</h2>
+            <canvas id="tempChart" width="400" height="200"></canvas>
+        </div>
+
         <div class="card">
+            <h2>Status</h2>
             <div class="value">Temperature 1: <span id="temp1">--</span> °C</div>
             <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
             <div class="value">PWM: <span id="pwm">--</span> %</div>
@@ -131,6 +146,7 @@ canvas {
         </div>
 
         <div class="card">
+            <h2>Einstellungen</h2>
             <form id="setpointForm">
                 <label for="setpointInput">Solltemperatur</label>
                 <input type="number" step="0.1" id="setpointInput" placeholder="">
@@ -141,21 +157,19 @@ canvas {
                 <input type="number" step="0.1" id="alarmInput" placeholder="">
                 <input type="submit" value="Senden">
             </form>
-        </div>
-
-        <div class="card">
+            <label>
+                <input type="checkbox" id="modeToggle">
+                Manueller Modus
+            </label>
             <form id="manualPwmForm" style="display: none;">
                 <label for="manualPwmInput">Manueller PWM</label>
                 <input type="number" step="1" min="0" max="100" id="manualPwmInput">
                 <input type="submit" value="Senden">
             </form>
-            <label>
-                <input type="checkbox" id="modeToggle">
-                Manueller Modus
-            </label>
         </div>
 
         <div class="card">
+            <h2>PID-Werte</h2>
             <form id="pidForm">
                 <label for="kpInput">Kp</label>
                 <input type="number" step="0.01" id="kpInput" placeholder="">
@@ -165,10 +179,6 @@ canvas {
                 <input type="number" step="0.01" id="kdInput" placeholder="">
                 <input type="submit" value="Senden">
             </form>
-        </div>
-
-        <div class="card">
-            <canvas id="tempChart" width="400" height="200"></canvas>
         </div>
     </div>
 
