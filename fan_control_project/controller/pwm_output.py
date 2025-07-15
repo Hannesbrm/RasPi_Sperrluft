@@ -10,7 +10,7 @@ except Exception:  # pragma: no cover - only triggered off Pi
 class FanPWMController:
     """Control a PWM fan using ``RPi.GPIO`` or a dummy fallback."""
 
-    def __init__(self, pin: int = 18, frequency: int = 25, min_pwm: float = 20.0) -> None:
+    def __init__(self, pin: int = 12, frequency: int = 25, min_pwm: float = 20.0) -> None:
         self.pin = pin
         self.frequency = frequency
         self.min_pwm = min_pwm
