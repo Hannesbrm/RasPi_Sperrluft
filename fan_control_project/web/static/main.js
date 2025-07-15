@@ -22,7 +22,7 @@ const kiInput = document.getElementById('kiInput');
 const kdInput = document.getElementById('kdInput');
 const tempChartCtx = document.getElementById('tempChart').getContext('2d');
 
-const maxPoints = 50;
+const maxPoints = 200;
 const labels = [];
 const temp1Data = [];
 const temp2Data = [];
@@ -66,6 +66,9 @@ const tempChart = new Chart(tempChartCtx, {
                 title: {
                     display: true,
                     text: 'Temperatur (°C)'
+                },
+                ticks: {
+                    stepSize: 5
                 }
             },
             y1: {
