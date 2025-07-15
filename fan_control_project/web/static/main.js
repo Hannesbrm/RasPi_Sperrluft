@@ -9,7 +9,7 @@ const manualPwmForm = document.getElementById('manualPwmForm');
 const manualPwmInput = document.getElementById('manualPwmInput');
 const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
-const alarmStatusEl = document.getElementById('alarmStatus');
+const alarmIndicatorEl = document.getElementById('alarmIndicator');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
 const pidForm = document.getElementById('pidForm');
@@ -88,7 +88,16 @@ socket.on('state_update', data => {
     ) {
         const t2 = parseFloat(data.temperature2);
         const threshold = parseFloat(data.alarm_threshold);
-        alarmStatusEl.textContent = t2 > threshold ? 'ALARM' : 'OK';
+        const alarmAktiv = t2 > threshold;
+        if (alarmIndicatorEl) {
+            if (alarmAktiv) {
+                alarmIndicatorEl.className = 'alarm-box danger';
+                alarmIndicatorEl.innerHTML = '<span class="icon">🔴</span> ALARM AKTIV';
+            } else {
+                alarmIndicatorEl.className = 'alarm-box safe';
+                alarmIndicatorEl.innerHTML = '<span class="icon">🟢</span> Kein Alarm';
+            }
+        }
     }
     if (data.kp !== undefined) {
         kpInput.placeholder = Number(data.kp).toFixed(2);

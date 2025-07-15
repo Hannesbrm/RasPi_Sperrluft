@@ -11,28 +11,29 @@ body {
   background-color: #f2f2f2;
   color: #333;
   margin: 0;
-  padding: 0;
+  padding: 20px;
 }
 
-h1 {
+header {
   background-color: #006699;
   color: white;
   padding: 1rem;
-  margin: 0;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
-.container {
-  padding: 1rem;
-  max-width: 1000px;
-  margin: auto;
+.layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
 }
 
-.section {
-  background-color: white;
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   padding: 1rem;
   margin-bottom: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 label {
@@ -63,14 +64,48 @@ button:hover, input[type="submit"]:hover {
   background-color: #004466;
 }
 
+
+.alarm-box {
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  text-align: center;
+  font-weight: bold;
+  transition: background 0.3s, color 0.3s;
+  margin: 0.5rem 0;
+}
+.alarm-box.safe {
+  background: #e0f7e0;
+  color: #2e7d32;
+}
+.alarm-box.danger {
+  background: #ffe0e0;
+  color: #b71c1c;
+}
+.alarm-box.danger .icon {
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .value {
   font-size: 1.2rem;
   margin: 0.5rem 0;
 }
 
+@media (max-width: 600px) {
+  body { padding: 10px; }
+  .card { padding: 0.8rem; }
+  label, input { font-size: 1rem; }
+}
+
 canvas {
   width: 100% !important;
-  height: 400px !important;
+  height: auto !important;
+  max-height: 300px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -79,19 +114,23 @@ canvas {
     </style>
 </head>
 <body>
-    <h1>Fan Control</h1>
-    <div class="container">
-        <div class="section">
+    <header>
+        <h1>Sperrluft Steuerung</h1>
+    </header>
+    <div class="layout">
+        <div class="card">
             <div class="value">Temperature 1: <span id="temp1">--</span> °C</div>
             <div class="value">Temperature 2: <span id="temp2">--</span> °C</div>
             <div class="value">PWM: <span id="pwm">--</span> %</div>
             <div class="value">Mode: <span id="mode">--</span></div>
             <div class="value">Solltemperatur: <span id="setpoint">--</span> °C</div>
             <div class="value">Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
-            <div class="value">Alarmstatus: <span id="alarmStatus">--</span></div>
+            <div id="alarmIndicator" class="alarm-box safe">
+                <span class="icon">🟢</span> Kein Alarm
+            </div>
         </div>
 
-        <div class="section">
+        <div class="card">
             <form id="setpointForm">
                 <label for="setpointInput">Solltemperatur</label>
                 <input type="number" step="0.1" id="setpointInput" placeholder="">
@@ -102,11 +141,21 @@ canvas {
                 <input type="number" step="0.1" id="alarmInput" placeholder="">
                 <input type="submit" value="Senden">
             </form>
+        </div>
+
+        <div class="card">
             <form id="manualPwmForm" style="display: none;">
                 <label for="manualPwmInput">Manueller PWM</label>
                 <input type="number" step="1" min="0" max="100" id="manualPwmInput">
                 <input type="submit" value="Senden">
             </form>
+            <label>
+                <input type="checkbox" id="modeToggle">
+                Manueller Modus
+            </label>
+        </div>
+
+        <div class="card">
             <form id="pidForm">
                 <label for="kpInput">Kp</label>
                 <input type="number" step="0.01" id="kpInput" placeholder="">
@@ -116,13 +165,9 @@ canvas {
                 <input type="number" step="0.01" id="kdInput" placeholder="">
                 <input type="submit" value="Senden">
             </form>
-            <label>
-                <input type="checkbox" id="modeToggle">
-                Manueller Modus
-            </label>
         </div>
 
-        <div class="section">
+        <div class="card">
             <canvas id="tempChart" width="400" height="200"></canvas>
         </div>
     </div>
