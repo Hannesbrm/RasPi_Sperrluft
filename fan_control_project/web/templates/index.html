@@ -28,7 +28,7 @@
         <label>Alarmgrenze: <input type="number" step="0.1" id="alarmInput" placeholder=""></label>
         <button type="submit">Senden</button>
     </form>
-    <form id="manualPwmForm">
+    <form id="manualPwmForm" style="display: none;">
         <label>Manueller PWM: <input type="number" step="1" min="0" max="100" id="manualPwmInput"></label>
         <button type="submit">Senden</button>
     </form>
@@ -38,15 +38,10 @@
         <label>Kd: <input type="number" step="0.01" id="kdInput" placeholder=""></label>
         <button type="submit">Senden</button>
     </form>
-    <form id="modeForm">
-        <label>Modus:
-            <select id="modeSelect">
-                <option value="auto">AUTOMATIK</option>
-                <option value="manual">MANUELL</option>
-            </select>
-        </label>
-        <button type="submit">Senden</button>
-    </form>
+    <label>
+        <input type="checkbox" id="modeToggle">
+        Manueller Modus
+    </label>
     <div class="value">Alarmstatus: <span id="alarmStatus">--</span></div>
 
     <canvas id="tempChart" width="400" height="200"></canvas>

@@ -4,8 +4,7 @@ const temp1El = document.getElementById('temp1');
 const temp2El = document.getElementById('temp2');
 const pwmEl = document.getElementById('pwm');
 const modeEl = document.getElementById('mode');
-const modeSelect = document.getElementById('modeSelect');
-const modeForm = document.getElementById('modeForm');
+const modeToggle = document.getElementById('modeToggle');
 const manualPwmForm = document.getElementById('manualPwmForm');
 const manualPwmInput = document.getElementById('manualPwmInput');
 const setpointEl = document.getElementById('setpoint');
@@ -69,7 +68,9 @@ socket.on('state_update', data => {
     }
     if (data.mode !== undefined) {
         modeEl.textContent = data.mode;
-        modeSelect.value = data.mode;
+        const manual = data.mode === 'manual';
+        modeToggle.checked = manual;
+        manualPwmForm.style.display = manual ? 'block' : 'none';
     }
     if (data.setpoint !== undefined) {
         const formatted = Number(data.setpoint).toFixed(1);
@@ -163,7 +164,8 @@ pidForm.addEventListener('submit', e => {
 });
 
 // change mode
-modeForm.addEventListener('submit', e => {
-    e.preventDefault();
-    socket.emit('set_mode', { mode: modeSelect.value });
+modeToggle.addEventListener('change', () => {
+    const mode = modeToggle.checked ? 'manual' : 'auto';
+    socket.emit('set_mode', { mode });
+    manualPwmForm.style.display = modeToggle.checked ? 'block' : 'none';
 });
