@@ -12,6 +12,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "manual_pwm": 0.0,
     "alarm_pwm": 100.0,
     "min_pwm": 20.0,
+    "pwm_pin": 12,
     "kp": 1.0,
     "ki": 0.1,
     "kd": 0.0,
