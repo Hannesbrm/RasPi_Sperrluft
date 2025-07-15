@@ -37,20 +37,23 @@ const tempChart = new Chart(tempChartCtx, {
                 label: 'Temperature 1',
                 borderColor: 'red',
                 fill: false,
-                data: temp1Data
+                data: temp1Data,
+                pointRadius: 0
             },
             {
                 label: 'Temperature 2',
                 borderColor: 'blue',
                 fill: false,
-                data: temp2Data
+                data: temp2Data,
+                pointRadius: 0
             },
             {
                 label: 'PWM',
                 borderColor: 'green',
                 fill: false,
                 data: pwmData,
-                yAxisID: 'y1'
+                yAxisID: 'y1',
+                pointRadius: 0
             }
         ]
     },
@@ -66,9 +69,6 @@ const tempChart = new Chart(tempChartCtx, {
                 title: {
                     display: true,
                     text: 'Temperatur (°C)'
-                },
-                ticks: {
-                    stepSize: 5
                 }
             },
             y1: {
