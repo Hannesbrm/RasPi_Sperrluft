@@ -113,7 +113,7 @@ def main() -> None:
     """Entry point for running the server."""
     socketio.start_background_task(_broadcast_state)
     try:
-        socketio.run(app, host="0.0.0.0", port=5000)
+        socketio.run(app, host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)
     finally:
         _stop_event.set()
 
