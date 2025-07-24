@@ -43,8 +43,8 @@ class SensorReader:
 
             # Bytes vor "t=" analysieren
             raw_bytes = [int(b, 16) for b in raw_line[:pos].split()]
-            # Laut MAX31850K Datenblatt liegen die Fehlerbits im letzten Byte
-            status_byte = raw_bytes[8] if len(raw_bytes) > 8 else 0
+            # Laut MAX31850K Datenblatt liegen die Fehlerbits in Byte 3 (Index 2)
+            status_byte = raw_bytes[2] if len(raw_bytes) > 2 else 0
 
             if status_byte & 0x01:
                 print("[SensorReader] Sensorfehler: Open Circuit")
@@ -57,6 +57,10 @@ class SensorReader:
                 return None, "short_vcc"
 
             temperature = float(raw_line[pos + 2 :]) / 1000.0
+            if temperature >= 1000 or temperature == 0.0:
+                print("[SensorReader] Unplausibler Temperaturwert")
+                return None, "sensor_error"
+
             return temperature, "ok"
         except Exception as exc:
             print(f"[SensorReader] Fehler beim Lesen der Temperatur: {exc}")
