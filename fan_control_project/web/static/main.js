@@ -2,6 +2,8 @@ const socket = io();
 
 const temp1El = document.getElementById('temp1');
 const temp2El = document.getElementById('temp2');
+const temp1StatusEl = document.getElementById('temp1Status');
+const temp2StatusEl = document.getElementById('temp2Status');
 const pwmEl = document.getElementById('pwm');
 const modeEl = document.getElementById('mode');
 const modeToggle = document.getElementById('modeToggle');
@@ -99,10 +101,24 @@ function showFeedback(id) {
 
 socket.on('state_update', data => {
     if (data.temperature1 !== undefined) {
-        temp1El.textContent = Number(data.temperature1).toFixed(1);
+        if (data.temperature1 === null) {
+            temp1El.textContent = '--';
+        } else {
+            temp1El.textContent = Number(data.temperature1).toFixed(1);
+        }
     }
     if (data.temperature2 !== undefined) {
-        temp2El.textContent = Number(data.temperature2).toFixed(1);
+        if (data.temperature2 === null) {
+            temp2El.textContent = '--';
+        } else {
+            temp2El.textContent = Number(data.temperature2).toFixed(1);
+        }
+    }
+    if (data.status1 !== undefined && temp1StatusEl) {
+        temp1StatusEl.textContent = data.status1 === 'ok' ? '' : `Sensorfehler: ${data.status1}`;
+    }
+    if (data.status2 !== undefined && temp2StatusEl) {
+        temp2StatusEl.textContent = data.status2 === 'ok' ? '' : `Sensorfehler: ${data.status2}`;
     }
     if (data.pwm1 !== undefined) {
         pwmEl.textContent = Number(data.pwm1).toFixed(1);
@@ -165,8 +181,8 @@ socket.on('state_update', data => {
         data.pwm1 !== undefined
     ) {
         labels.push(new Date().toLocaleTimeString());
-        temp1Data.push(parseFloat(data.temperature1));
-        temp2Data.push(parseFloat(data.temperature2));
+        temp1Data.push(data.temperature1 === null ? null : parseFloat(data.temperature1));
+        temp2Data.push(data.temperature2 === null ? null : parseFloat(data.temperature2));
         pwmData.push(parseFloat(data.pwm1));
         if (labels.length > maxPoints) {
             labels.shift();

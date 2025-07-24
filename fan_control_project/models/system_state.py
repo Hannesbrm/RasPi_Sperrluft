@@ -29,6 +29,8 @@ class SystemState:
         kp: float = 1.0,
         ki: float = 0.1,
         kd: float = 0.0,
+        status1: str = "ok",
+        status2: str = "ok",
     ) -> None:
         self._temperature1 = temperature1
         self._temperature2 = temperature2
@@ -43,6 +45,8 @@ class SystemState:
         self._kp = kp
         self._ki = ki
         self._kd = kd
+        self._status1 = status1
+        self._status2 = status2
 
     # Temperatur 1
     @property
@@ -162,6 +166,24 @@ class SystemState:
     def kd(self, value: float) -> None:
         self._kd = value
 
+    # Status des ersten Sensors
+    @property
+    def status1(self) -> str:
+        return self._status1
+
+    @status1.setter
+    def status1(self, value: str) -> None:
+        self._status1 = value
+
+    # Status des zweiten Sensors
+    @property
+    def status2(self) -> str:
+        return self._status2
+
+    @status2.setter
+    def status2(self, value: str) -> None:
+        self._status2 = value
+
     def to_dict(self) -> Dict[str, Any]:
         """Return a dictionary representation of the state."""
 
@@ -179,5 +201,7 @@ class SystemState:
             "kp": self._kp,
             "ki": self._ki,
             "kd": self._kd,
+            "status1": self._status1,
+            "status2": self._status2,
         }
 
