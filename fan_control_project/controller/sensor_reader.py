@@ -26,7 +26,14 @@ class SensorReader:
                 print(f"[SensorReader] Sensor {sensor_id} nicht gefunden.")
 
     def _read_sensor_file(self, device_file: str) -> Tuple[Optional[float], str]:
-        """Lies die Temperatur und den Status aus einer w1_slave-Datei."""
+        """Lies die Temperatur und den Status aus einer w1_slave-Datei.
+
+        Die Temperatur wird immer zurückgegeben, sofern sie aus der Datei
+        ausgelesen werden konnte. Fehlerbits im Status führen nicht mehr dazu,
+        dass ``None`` zurückgegeben wird. Nur wenn kein Temperaturwert
+        vorhanden ist oder ein unerwarteter Fehler auftritt, wird ``None`` als
+        Temperatur geliefert.
+        """
 
         try:
             with open(device_file, "r") as f:
@@ -46,22 +53,21 @@ class SensorReader:
             # Laut MAX31850K Datenblatt liegen die Fehlerbits in Byte 3 (Index 2)
             status_byte = raw_bytes[2] if len(raw_bytes) > 2 else 0
 
+            # Temperatur immer auslesen, unabhängig vom Status
+            temperature = float(raw_line[pos + 2 :]) / 1000.0
+
+            status = "ok"
             if status_byte & 0x01:
                 print("[SensorReader] Sensorfehler: Open Circuit")
-                return None, "open_circuit"
-            if status_byte & 0x02:
+                status = "open_circuit"
+            elif status_byte & 0x02:
                 print("[SensorReader] Sensorfehler: Kurzschluss gegen GND")
-                return None, "short_gnd"
-            if status_byte & 0x04:
+                status = "short_gnd"
+            elif status_byte & 0x04:
                 print("[SensorReader] Sensorfehler: Kurzschluss gegen VCC")
-                return None, "short_vcc"
+                status = "short_vcc"
 
-            temperature = float(raw_line[pos + 2 :]) / 1000.0
-            if temperature >= 1000 or temperature == 0.0:
-                print("[SensorReader] Unplausibler Temperaturwert")
-                return None, "sensor_error"
-
-            return temperature, "ok"
+            return temperature, status
         except Exception as exc:
             print(f"[SensorReader] Fehler beim Lesen der Temperatur: {exc}")
             return None, "error"
