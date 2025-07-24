@@ -43,7 +43,8 @@ class SensorReader:
 
             # Bytes vor "t=" analysieren
             raw_bytes = [int(b, 16) for b in raw_line[:pos].split()]
-            status_byte = raw_bytes[1] if len(raw_bytes) > 1 else 0
+            # Laut MAX31850K Datenblatt liegen die Fehlerbits im letzten Byte
+            status_byte = raw_bytes[8] if len(raw_bytes) > 8 else 0
 
             if status_byte & 0x01:
                 print("[SensorReader] Sensorfehler: Open Circuit")
