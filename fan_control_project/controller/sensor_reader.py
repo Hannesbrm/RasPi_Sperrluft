@@ -3,7 +3,7 @@
 """Modul zum Auslesen von MAX31850K Temperatursensoren."""
 
 import os
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 
 class SensorReader:
@@ -25,8 +25,9 @@ class SensorReader:
                 self.device_files.append(None)
                 print(f"[SensorReader] Sensor {sensor_id} nicht gefunden.")
 
-    def _read_sensor_file(self, device_file: str) -> Optional[float]:
-        """Liest die Temperatur aus einer w1_slave-Datei."""
+    def _read_sensor_file(self, device_file: str) -> Tuple[Optional[float], str]:
+        """Lies die Temperatur und den Status aus einer w1_slave-Datei."""
+
         try:
             with open(device_file, "r") as f:
                 lines = f.readlines()
@@ -34,14 +35,31 @@ class SensorReader:
             if lines[0].strip()[-3:] != "YES":
                 raise ValueError("CRC-Check fehlgeschlagen")
 
-            pos = lines[1].find("t=")
+            # Zweite Zeile: Byte-Rohdaten und Temperatur
+            raw_line = lines[1].strip()
+            pos = raw_line.find("t=")
             if pos == -1:
                 raise ValueError("Kein Temperaturwert gefunden")
 
-            return float(lines[1][pos + 2:]) / 1000.0
+            # Bytes vor "t=" analysieren
+            raw_bytes = [int(b, 16) for b in raw_line[:pos].split()]
+            status_byte = raw_bytes[1] if len(raw_bytes) > 1 else 0
+
+            if status_byte & 0x01:
+                print("[SensorReader] Sensorfehler: Open Circuit")
+                return None, "open_circuit"
+            if status_byte & 0x02:
+                print("[SensorReader] Sensorfehler: Kurzschluss gegen GND")
+                return None, "short_gnd"
+            if status_byte & 0x04:
+                print("[SensorReader] Sensorfehler: Kurzschluss gegen VCC")
+                return None, "short_vcc"
+
+            temperature = float(raw_line[pos + 2 :]) / 1000.0
+            return temperature, "ok"
         except Exception as exc:
             print(f"[SensorReader] Fehler beim Lesen der Temperatur: {exc}")
-            return None
+            return None, "error"
 
     def read_temperature(self, sensor_index: int) -> Optional[float]:
         """Gibt die Temperatur des Sensors mit dem gegebenen Index zurück."""
@@ -52,11 +70,21 @@ class SensorReader:
         device_file = self.device_files[sensor_index]
         if device_file is None:
             return None
-        return self._read_sensor_file(device_file)
 
-    def read_all(self) -> Dict[str, Optional[float]]:
-        """Liest alle konfigurierten Sensoren aus und gibt ihre Werte zurück."""
-        result: Dict[str, Optional[float]] = {}
+        temperature, _ = self._read_sensor_file(device_file)
+        return temperature
+
+    def read_all(self) -> Dict[str, Dict[str, Optional[float] | str]]:
+        """Liest alle Sensoren aus und gibt Temperatur und Status zurück."""
+
+        result: Dict[str, Dict[str, Optional[float] | str]] = {}
         for idx, sensor_id in enumerate(self.sensor_ids):
-            result[sensor_id] = self.read_temperature(idx)
+            device_file = self.device_files[idx]
+            if device_file is None:
+                result[sensor_id] = {"temperature": None, "status": "not_found"}
+                continue
+
+            temperature, status = self._read_sensor_file(device_file)
+            result[sensor_id] = {"temperature": temperature, "status": status}
+
         return result

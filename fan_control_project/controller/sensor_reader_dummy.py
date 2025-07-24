@@ -8,7 +8,7 @@ class SensorReader:
         """Initialize with the given sensor IDs."""
         self.sensor_ids = list(sensor_ids)
 
-    def _read_sensor_file(self, device_file: str) -> Optional[float]:
+    def _read_sensor_file(self, device_file: str) -> float:
         """Dummy implementation returning a fixed value."""
         return 25.0
 
@@ -19,9 +19,9 @@ class SensorReader:
         # Each sensor gets a slightly different value for realism
         return 25.0 + sensor_index
 
-    def read_all(self) -> Dict[str, Optional[float]]:
-        """Return temperatures for all configured sensors."""
+    def read_all(self) -> Dict[str, Dict[str, Optional[float] | str]]:
+        """Return temperatures for all configured sensors with status."""
         return {
-            sensor_id: self.read_temperature(idx)
+            sensor_id: {"temperature": self.read_temperature(idx), "status": "ok"}
             for idx, sensor_id in enumerate(self.sensor_ids)
         }

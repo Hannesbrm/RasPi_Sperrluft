@@ -59,9 +59,17 @@ class ControlLoop:
 
     def _update_once(self) -> None:
         """Read sensors, compute PWM value and update state."""
-        temps = self.sensor_reader.read_all()
-        temp1 = temps.get(self.sensor_mapping.get("temperature1"))
-        temp2 = temps.get(self.sensor_mapping.get("temperature2"))
+        sensor_data = self.sensor_reader.read_all()
+        entry1 = sensor_data.get(self.sensor_mapping.get("temperature1"), {})
+        entry2 = sensor_data.get(self.sensor_mapping.get("temperature2"), {})
+
+        temp1 = entry1.get("temperature")
+        temp2 = entry2.get("temperature")
+        status1 = entry1.get("status", "error")
+        status2 = entry2.get("status", "error")
+
+        self.state.status1 = status1
+        self.state.status2 = status2
 
         if temp1 is not None:
             self.state.temperature1 = temp1
