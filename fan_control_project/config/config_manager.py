@@ -16,6 +16,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "kp": 1.0,
     "ki": 0.1,
     "kd": 0.0,
+    "postrun_seconds": 30.0,
 }
 
 
@@ -64,5 +65,7 @@ def save_config(state: SystemState) -> None:
         data["ki"] = state.ki
     if hasattr(state, "kd"):
         data["kd"] = state.kd
+    if hasattr(state, "postrun_seconds"):
+        data["postrun_seconds"] = state.postrun_seconds
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
