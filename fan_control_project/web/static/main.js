@@ -165,6 +165,9 @@ socket.on('state_update', data => {
                 alarmIndicatorEl.innerHTML = '<span class="icon">🟢</span> Kein Alarm';
             }
         }
+        if (mainHeader) {
+            mainHeader.style.backgroundColor = alarmAktiv ? '#cc0000' : '#0077cc';
+        }
     }
     if (data.kp !== undefined) {
         kpInput.placeholder = Number(data.kp).toFixed(2);
