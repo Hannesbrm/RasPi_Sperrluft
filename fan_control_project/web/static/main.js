@@ -16,6 +16,7 @@ const minPwmInput = document.getElementById('minPwmInput');
 const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
 const alarmIndicatorEl = document.getElementById('alarmIndicator');
+const mainHeader = document.getElementById('main-header');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
 const pidForm = document.getElementById('pidForm');
@@ -266,5 +267,15 @@ modeToggle.addEventListener('change', () => {
     const mode = modeToggle.checked ? 'manual' : 'auto';
     socket.emit('set_mode', { mode });
     manualPwmForm.style.display = modeToggle.checked ? 'block' : 'none';
+});
+
+// Listen for system state updates to adjust header color
+socket.on('system_state', data => {
+    if (!mainHeader) return;
+    if (data.alarm_active === true) {
+        mainHeader.style.backgroundColor = '#cc0000';
+    } else if (data.alarm_active === false) {
+        mainHeader.style.backgroundColor = '#0077cc';
+    }
 });
 
