@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import threading
 import time
+from datetime import datetime, timedelta
 from typing import Optional
 
 from .sensor_reader import SensorReader
@@ -77,21 +78,39 @@ class ControlLoop:
             self.state.temperature2 = temp2
 
         pwm_value = 0.0
+        now = datetime.now()
+
+        alarm = temp2 is not None and temp2 > self.state.alarm_threshold
+
+        if alarm:
+            self.state.alarm_active = True
+            self.state.postrun_until = None
+        else:
+            if self.state.alarm_active:
+                self.state.alarm_active = False
+                self.state.postrun_until = now + timedelta(
+                    seconds=self.state.postrun_seconds
+                )
+
+        postrun_active = False
+        if self.state.postrun_until is not None:
+            if now < self.state.postrun_until:
+                postrun_active = True
+            else:
+                self.state.postrun_until = None
 
         if self.state.mode == Mode.MANUAL:
             pwm_value = self.state.manual_pwm
 
         elif self.state.mode == Mode.AUTO:
-            if temp2 is not None and temp2 > self.state.alarm_threshold:
-                # Zustand 2: Alarmverhalten
+            if alarm or postrun_active:
+                # Alarm oder Nachlauf aktiv
                 pwm_value = self.state.alarm_pwm
             elif temp1 is not None:
-                # Zustand 1: PID
+                # Regulärer PID-Betrieb
                 self.pid.update_setpoint(self.state.setpoint)
                 pwm_value = self.pid.compute(temp1)
-                # Invert PID output because higher PWM lowers the temperature
                 pwm_value = 100.0 - pwm_value
-                # Clamp to valid duty cycle range
                 pwm_value = max(0.0, min(100.0, pwm_value))
             else:
                 pwm_value = self.state.pwm1

@@ -33,6 +33,7 @@ def main() -> None:
     state.kp = float(cfg.get("kp", 1.0))
     state.ki = float(cfg.get("ki", 0.1))
     state.kd = float(cfg.get("kd", 0.0))
+    state.postrun_seconds = float(cfg.get("postrun_seconds", 30.0))
 
     # IDs of the connected 1-Wire temperature sensors. Keys in ``sensor_mapping``
     # represent the logical position while the values are the stable IDs of the

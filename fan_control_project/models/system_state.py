@@ -29,6 +29,7 @@ class SystemState:
         kp: float = 1.0,
         ki: float = 0.1,
         kd: float = 0.0,
+        postrun_seconds: float = 30.0,
         status1: str = "ok",
         status2: str = "ok",
     ) -> None:
@@ -45,6 +46,9 @@ class SystemState:
         self._kp = kp
         self._ki = ki
         self._kd = kd
+        self._postrun_seconds = postrun_seconds
+        self._postrun_until = None
+        self._alarm_active = False
         self._status1 = status1
         self._status2 = status2
 
@@ -166,6 +170,33 @@ class SystemState:
     def kd(self, value: float) -> None:
         self._kd = value
 
+    # Nachlaufzeit in Sekunden
+    @property
+    def postrun_seconds(self) -> float:
+        return self._postrun_seconds
+
+    @postrun_seconds.setter
+    def postrun_seconds(self, value: float) -> None:
+        self._postrun_seconds = value
+
+    # Zeitpunkt bis wann der Nachlauf aktiv bleibt
+    @property
+    def postrun_until(self):  # type: ignore[override]
+        return self._postrun_until
+
+    @postrun_until.setter
+    def postrun_until(self, value) -> None:  # type: ignore[override]
+        self._postrun_until = value
+
+    # Interner Alarmstatus
+    @property
+    def alarm_active(self) -> bool:
+        return self._alarm_active
+
+    @alarm_active.setter
+    def alarm_active(self, value: bool) -> None:
+        self._alarm_active = value
+
     # Status des ersten Sensors
     @property
     def status1(self) -> str:
@@ -201,6 +232,8 @@ class SystemState:
             "kp": self._kp,
             "ki": self._ki,
             "kd": self._kd,
+            "postrun_seconds": self._postrun_seconds,
+            "alarm_active": self._alarm_active,
             "status1": self._status1,
             "status2": self._status2,
         }

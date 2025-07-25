@@ -103,6 +103,14 @@ def handle_set_pid_params(data: Dict[str, Any]) -> None:
     save_config(state)
 
 
+@socketio.on("set_postrun_seconds")
+def handle_set_postrun_seconds(data: Dict[str, Any]) -> None:
+    """Update the post-run time for the fan after an alarm."""
+    value = float(data.get("value", 0))
+    state.postrun_seconds = value
+    save_config(state)
+
+
 @app.route("/")
 def index() -> str:
     """Serve the main page."""
