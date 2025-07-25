@@ -16,6 +16,7 @@ const minPwmInput = document.getElementById('minPwmInput');
 const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
 const alarmIndicatorEl = document.getElementById('alarmIndicator');
+const mainHeader = document.getElementById('main-header');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
 const pidForm = document.getElementById('pidForm');
@@ -163,6 +164,9 @@ socket.on('state_update', data => {
                 alarmIndicatorEl.className = 'alarm-box safe';
                 alarmIndicatorEl.innerHTML = '<span class="icon">🟢</span> Kein Alarm';
             }
+        }
+        if (mainHeader) {
+            mainHeader.style.backgroundColor = alarmAktiv ? '#cc0000' : '#0077cc';
         }
     }
     if (data.kp !== undefined) {
