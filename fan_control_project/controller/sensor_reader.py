@@ -53,22 +53,34 @@ class SensorReader:
 
             # Bytes vor "t=" analysieren
             raw_bytes = [int(b, 16) for b in raw_line[:pos].split()]
-            # Laut MAX31850K Datenblatt liegen die Fehlerbits in Byte 3 (Index 2)
+            # Laut MAX31850K Datenblatt liegen die Fehlerbits in Byte 2 (Index 2)
             status_byte = raw_bytes[2] if len(raw_bytes) > 2 else 0
+            sensor_id = os.path.basename(os.path.dirname(device_file))
+            logger.debug(
+                "Sensor %s: raw_bytes[2]=0x%02X (%s)",
+                sensor_id,
+                status_byte,
+                bin(status_byte),
+            )
 
             # Temperatur immer auslesen, unabhängig vom Status
             temperature = float(raw_line[pos + 2 :]) / 1000.0
 
             status = "ok"
             if status_byte & 0x01:
-                logger.warning("Sensorfehler: Open Circuit")
                 status = "open_circuit"
             elif status_byte & 0x02:
-                logger.warning("Sensorfehler: Kurzschluss gegen GND")
                 status = "short_gnd"
             elif status_byte & 0x04:
-                logger.warning("Sensorfehler: Kurzschluss gegen VCC")
                 status = "short_vcc"
+
+            if status != "ok":
+                logger.warning(
+                    "Fehler: %s – raw_bytes[2]=0x%02X (%s)",
+                    status,
+                    status_byte,
+                    bin(status_byte),
+                )
 
             logger.debug("Gelesen %.2f °C mit Status %s", temperature, status)
             return temperature, status
