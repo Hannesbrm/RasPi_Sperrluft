@@ -26,6 +26,7 @@ const kpInput = document.getElementById('kpInput');
 const kiInput = document.getElementById('kiInput');
 const kdInput = document.getElementById('kdInput');
 const tempChartCtx = document.getElementById('tempChart').getContext('2d');
+const logContainer = document.getElementById('logContainer');
 
 const maxPoints = 200;
 const labels = [];
@@ -295,5 +296,17 @@ socket.on('system_state', data => {
     } else if (data.alarm_active === false) {
         mainHeader.style.backgroundColor = '#0077cc';
     }
+});
+
+socket.on('logs_update', logs => {
+    if (!logContainer) return;
+    logContainer.innerHTML = '';
+    logs.forEach(entry => {
+        const div = document.createElement('div');
+        div.textContent = entry.message;
+        div.classList.add('log-entry', `log-${entry.level}`);
+        logContainer.appendChild(div);
+    });
+    logContainer.scrollTop = logContainer.scrollHeight;
 });
 

@@ -196,6 +196,24 @@ canvas {
   border-radius: 8px;
   margin-top: 1rem;
 }
+
+.log-container {
+  max-height: 300px;
+  overflow-y: auto;
+  background: #f0f0f0;
+  font-family: monospace;
+  padding: 0.5rem;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.log-entry {
+  margin-bottom: 0.25rem;
+}
+
+.log-info { color: #333; }
+.log-warning { color: #b58900; }
+.log-error { color: #d32f2f; }
     </style>
 </head>
 <body>
@@ -220,6 +238,9 @@ canvas {
     </button>
     <button class="tab-button" data-tab="settingsTab">
       <i class="fas fa-sliders-h"></i> Einstellungen
+    </button>
+    <button class="tab-button" data-tab="logTab">
+      <i class="fas fa-file-alt"></i> Log
     </button>
   </div>
 </main>
@@ -303,6 +324,13 @@ canvas {
   </div>
 </div>
 
+<div id="logTab" class="tab-content">
+  <div class="card">
+    <h2><i class="fas fa-file-alt"></i> Log</h2>
+    <div id="logContainer" class="log-container"></div>
+  </div>
+</div>
+
 <script>
   document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
@@ -310,6 +338,9 @@ canvas {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       button.classList.add('active');
       document.getElementById(button.dataset.tab).classList.add('active');
+      if (button.dataset.tab === 'logTab') {
+        socket.emit('request_logs');
+      }
     });
   });
 </script>
