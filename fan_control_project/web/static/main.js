@@ -19,6 +19,7 @@ const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
 const alarmIndicatorEl = document.getElementById('alarmIndicator');
 const mainHeader = document.getElementById('main-header');
+const rebootButton = document.getElementById('rebootButton');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
 const pidForm = document.getElementById('pidForm');
@@ -308,5 +309,17 @@ socket.on('logs_update', logs => {
         logContainer.appendChild(div);
     });
     logContainer.scrollTop = logContainer.scrollHeight;
+});
+
+if (rebootButton) {
+    rebootButton.addEventListener('click', () => {
+        if (confirm('Raspberry Pi neustarten?')) {
+            socket.emit('request_reboot');
+        }
+    });
+}
+
+socket.on('reboot_ack', () => {
+    alert('wird neu gestartet...');
 });
 
