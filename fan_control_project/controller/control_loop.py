@@ -11,6 +11,7 @@ from .sensor_reader import SensorReader
 from .pid_controller import PIDController
 from .pwm_output import FanPWMController
 from models import SystemState, Mode
+from config.logging_config import logger
 
 
 class ControlLoop:
@@ -44,6 +45,7 @@ class ControlLoop:
         self._running = True
         self._thread = threading.Thread(target=self._run_loop, daemon=True)
         self._thread.start()
+        logger.info("Control loop gestartet")
 
     def stop(self) -> None:
         """Stop the control loop."""
@@ -52,6 +54,7 @@ class ControlLoop:
             self._thread.join()
             self._thread = None
         self.pwm.stop()
+        logger.info("Control loop gestoppt")
 
     def _run_loop(self) -> None:
         while self._running:
@@ -63,6 +66,8 @@ class ControlLoop:
         sensor_data = self.sensor_reader.read_all()
         entry1 = sensor_data.get(self.sensor_mapping.get("temperature1"), {})
         entry2 = sensor_data.get(self.sensor_mapping.get("temperature2"), {})
+
+        logger.debug("Sensor1=%s Sensor2=%s", entry1, entry2)
 
         temp1 = entry1.get("temperature")
         temp2 = entry2.get("temperature")
@@ -118,3 +123,10 @@ class ControlLoop:
         final_value = max(self.pwm.min_pwm, pwm_value)
         self.pwm.set_pwm(final_value)
         self.state.pwm1 = final_value
+        logger.debug(
+            "PWM berechnet: temp1=%s temp2=%s alarm=%s pwm=%.2f",
+            temp1,
+            temp2,
+            alarm or postrun_active,
+            final_value,
+        )

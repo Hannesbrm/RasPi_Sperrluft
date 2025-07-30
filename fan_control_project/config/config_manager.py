@@ -2,6 +2,8 @@ import json
 import os
 from typing import Any, Dict
 
+from config.logging_config import logger
+
 from models.system_state import SystemState
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "settings.json")
@@ -25,6 +27,7 @@ def _ensure_file_exists() -> None:
     if not os.path.exists(CONFIG_PATH):
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
             json.dump(DEFAULT_CONFIG, f, indent=2)
+        logger.info("Neue Konfigurationsdatei erstellt unter %s", CONFIG_PATH)
 
 
 def load_config() -> Dict[str, Any]:
@@ -33,8 +36,10 @@ def load_config() -> Dict[str, Any]:
     try:
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             data: Dict[str, Any] = json.load(f)
+        logger.debug("Konfiguration geladen: %s", data)
     except (OSError, json.JSONDecodeError):
         data = DEFAULT_CONFIG.copy()
+        logger.warning("Konfiguration konnte nicht geladen werden, Standardwerte verwendet")
 
     changed = False
     for key, default in DEFAULT_CONFIG.items():
@@ -45,6 +50,7 @@ def load_config() -> Dict[str, Any]:
     if changed:
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+        logger.info("Konfiguration aktualisiert: %s", data)
 
     return data
 
@@ -69,3 +75,4 @@ def save_config(state: SystemState) -> None:
         data["postrun_seconds"] = state.postrun_seconds
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
+    logger.info("Konfiguration gespeichert: %s", data)
