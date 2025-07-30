@@ -8,7 +8,7 @@ from typing import Any, Dict
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
-from config.logging_config import logger
+from config.logging_config import logger, log_buffer
 
 from models.system_state import SystemState, Mode
 from config import save_config
@@ -125,6 +125,12 @@ def handle_set_postrun_seconds(data: Dict[str, Any]) -> None:
     state.postrun_seconds = value
     save_config(state)
     logger.info("Nachlaufzeit geaendert auf %s", value)
+
+
+@socketio.on("request_logs")
+def handle_request_logs() -> None:
+    """Send the current log buffer to the requesting client."""
+    emit("logs_update", list(log_buffer))
 
 
 @app.route("/")
