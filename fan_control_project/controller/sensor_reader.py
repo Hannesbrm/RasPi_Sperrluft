@@ -5,6 +5,8 @@
 import os
 from typing import List, Dict, Optional, Tuple
 
+from config.logging_config import logger
+
 
 class SensorReader:
     def __init__(self, sensor_ids: List[str]):
@@ -21,9 +23,10 @@ class SensorReader:
             path = os.path.join(base_path, sensor_id, "w1_slave")
             if os.path.exists(path):
                 self.device_files.append(path)
+                logger.debug("Sensor %s gefunden", sensor_id)
             else:
                 self.device_files.append(None)
-                print(f"[SensorReader] Sensor {sensor_id} nicht gefunden.")
+                logger.warning("Sensor %s nicht gefunden", sensor_id)
 
     def _read_sensor_file(self, device_file: str) -> Tuple[Optional[float], str]:
         """Lies die Temperatur und den Status aus einer w1_slave-Datei.
@@ -58,24 +61,25 @@ class SensorReader:
 
             status = "ok"
             if status_byte & 0x01:
-                print("[SensorReader] Sensorfehler: Open Circuit")
+                logger.warning("Sensorfehler: Open Circuit")
                 status = "open_circuit"
             elif status_byte & 0x02:
-                print("[SensorReader] Sensorfehler: Kurzschluss gegen GND")
+                logger.warning("Sensorfehler: Kurzschluss gegen GND")
                 status = "short_gnd"
             elif status_byte & 0x04:
-                print("[SensorReader] Sensorfehler: Kurzschluss gegen VCC")
+                logger.warning("Sensorfehler: Kurzschluss gegen VCC")
                 status = "short_vcc"
 
+            logger.debug("Gelesen %.2f °C mit Status %s", temperature, status)
             return temperature, status
         except Exception as exc:
-            print(f"[SensorReader] Fehler beim Lesen der Temperatur: {exc}")
+            logger.error("Fehler beim Lesen der Temperatur: %s", exc)
             return None, "error"
 
     def read_temperature(self, sensor_index: int) -> Optional[float]:
         """Gibt die Temperatur des Sensors mit dem gegebenen Index zurück."""
         if not (0 <= sensor_index < len(self.device_files)):
-            print("[SensorReader] Ungültiger Sensorindex.")
+            logger.warning("Ungueltiger Sensorindex: %s", sensor_index)
             return None
 
         device_file = self.device_files[sensor_index]
@@ -93,9 +97,12 @@ class SensorReader:
             device_file = self.device_files[idx]
             if device_file is None:
                 result[sensor_id] = {"temperature": None, "status": "not_found"}
+                logger.warning("Sensor %s nicht gefunden", sensor_id)
                 continue
 
             temperature, status = self._read_sensor_file(device_file)
             result[sensor_id] = {"temperature": temperature, "status": status}
+
+        logger.debug("Sensorwerte: %s", result)
 
         return result

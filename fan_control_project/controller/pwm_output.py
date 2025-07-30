@@ -7,6 +7,8 @@ except Exception:  # pragma: no cover - only triggered off Pi
     GPIO = None  # type: ignore
     _HAS_GPIO = False
 
+from config.logging_config import logger
+
 class FanPWMController:
     """Control a PWM fan using ``RPi.GPIO`` or a dummy fallback."""
 
@@ -22,19 +24,23 @@ class FanPWMController:
             GPIO.setup(self.pin, GPIO.OUT)
             self.pwm = GPIO.PWM(self.pin, self.frequency)
             self.pwm.start(0)
+            logger.info("PWM initialisiert auf Pin %s", self.pin)
         else:
             # Dummy mode when running off the Pi
             self._value = 0.0
+            logger.info("PWM Dummy-Modus aktiv")
 
     def set_pwm(self, value: float) -> None:
         """Set PWM duty cycle (0.0-100.0) respecting ``min_pwm``."""
         value = max(self.min_pwm, min(100.0, value))
         if not _HAS_GPIO:
             self._value = value
+            logger.debug("Dummy PWM gesetzt: %.2f", value)
             return
 
         if self.pwm:
             self.pwm.ChangeDutyCycle(value)
+            logger.debug("PWM gesetzt: %.2f", value)
 
     def stop(self) -> None:
         """Stop PWM and clean up GPIO."""
@@ -42,4 +48,5 @@ class FanPWMController:
             self.pwm.stop()
             GPIO.cleanup(self.pin)
             self.pwm = None
+        logger.info("PWM gestoppt")
 

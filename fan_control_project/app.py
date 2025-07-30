@@ -7,6 +7,7 @@ from controller.pwm_output import FanPWMController
 from controller.control_loop import ControlLoop
 from web import server
 from config import load_config
+from config.logging_config import logger
 
 # Mapping between semantic temperature labels and the 1-Wire sensor IDs
 sensor_mapping = {
@@ -17,6 +18,7 @@ sensor_mapping = {
 
 def main() -> None:
     """Initialize all components and start the web server."""
+    logger.info("Starte Anwendung")
 
     # Reuse the global state object from the web server so that updates become
     # visible to connected clients.
@@ -24,6 +26,7 @@ def main() -> None:
 
     # Load persisted configuration values
     cfg = load_config()
+    logger.debug("Konfiguration geladen: %s", cfg)
     state.setpoint = float(cfg.get("setpoint", 0.0))
     state.alarm_threshold = float(cfg.get("alarm_threshold", 0.0))
     state.manual_pwm = float(cfg.get("manual_pwm", 0.0))
@@ -63,11 +66,13 @@ def main() -> None:
         sensor_mapping=sensor_mapping,
     )
     control_loop.start()
+    logger.info("Steuerung gestartet")
 
     # Expose PID controller to the web server for runtime updates
     server.pid_controller = pid
 
     server.main()
+    logger.info("Anwendung beendet")
 
 
 if __name__ == "__main__":

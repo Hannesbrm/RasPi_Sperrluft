@@ -1,5 +1,7 @@
 from simple_pid import PID
 
+from config.logging_config import logger
+
 class PIDController:
     """Wrapper around :class:`simple_pid.PID` for basic fan control."""
 
@@ -24,11 +26,21 @@ class PIDController:
         """
         self.pid = PID(kp, ki, kd, setpoint=setpoint, output_limits=output_limits)
         self.pid.sample_time = sample_time
+        logger.debug(
+            "PID initialisiert: setpoint=%s, kp=%s, ki=%s, kd=%s",
+            setpoint,
+            kp,
+            ki,
+            kd,
+        )
 
     def compute(self, current_value: float) -> float:
         """Return control output for a measured value."""
-        return self.pid(current_value)
+        result = self.pid(current_value)
+        logger.debug("PID compute: input=%.2f output=%.2f", current_value, result)
+        return result
 
     def update_setpoint(self, new_value: float) -> None:
         """Update the desired target value."""
+        logger.debug("PID setpoint update: %s", new_value)
         self.pid.setpoint = new_value
