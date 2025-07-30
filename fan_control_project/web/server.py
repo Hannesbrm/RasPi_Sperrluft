@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from threading import Event
 from typing import Any, Dict
+import os
+import time
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 
 from config.logging_config import logger, log_buffer
@@ -131,6 +133,24 @@ def handle_set_postrun_seconds(data: Dict[str, Any]) -> None:
 def handle_request_logs() -> None:
     """Send the current log buffer to the requesting client."""
     emit("logs_update", list(log_buffer))
+
+
+@socketio.on("request_reboot")
+def handle_request_reboot() -> None:
+    """Handle a reboot request from the client."""
+    ip = request.remote_addr or ""
+    if ip and not ip.startswith("192.168."):
+        logger.warning("Reboot request denied from IP %s", ip)
+        emit("reboot_ack", {"status": "denied"})
+        return
+
+    emit("reboot_ack", {"status": "ok"})
+
+    def _delayed_reboot() -> None:
+        time.sleep(1)
+        os.system("sudo reboot")
+
+    socketio.start_background_task(_delayed_reboot)
 
 
 @app.route("/")

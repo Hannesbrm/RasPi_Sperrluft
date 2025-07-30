@@ -24,6 +24,7 @@ header {
   text-align: center;
   margin-bottom: 1.5rem;
   border-radius: 0.5rem;
+  position: relative;
 }
 
 .header-container {
@@ -36,6 +37,17 @@ header {
 .alarm-box {
   font-size: 0.9rem;
   margin-top: 0.5rem;
+}
+
+.reboot-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
 }
 
 main {
@@ -224,6 +236,7 @@ canvas {
       <span class="icon">🟢</span> Kein Alarm
     </div>
   </div>
+  <button id="rebootButton" class="reboot-btn" title="Neustart">🔄 Neustart</button>
 </header>
 
 <main>
