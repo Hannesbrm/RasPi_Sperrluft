@@ -35,28 +35,8 @@ const temp1Data = [];
 const temp2Data = [];
 const pwmData = [];
 
-const MIN_TEMP_RANGE = 5;
-const minTempRangePlugin = {
-    id: 'minTempRangePlugin',
-    afterDataLimits: scale => {
-        if (scale.id !== 'y') return;
-        const range = scale.max - scale.min;
-        if (range < MIN_TEMP_RANGE) {
-            const mid = (scale.max + scale.min) / 2;
-            // use suggestedMin/Max so automatic scaling still works
-            scale.options.suggestedMin = mid - MIN_TEMP_RANGE / 2;
-            scale.options.suggestedMax = mid + MIN_TEMP_RANGE / 2;
-        } else {
-            // clear suggestions when not needed
-            scale.options.suggestedMin = undefined;
-            scale.options.suggestedMax = undefined;
-        }
-    }
-};
-
 const tempChart = new Chart(tempChartCtx, {
     type: 'line',
-    plugins: [minTempRangePlugin],
     data: {
         labels: labels,
         datasets: [
