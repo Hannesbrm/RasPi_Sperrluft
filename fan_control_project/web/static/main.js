@@ -43,8 +43,13 @@ const minTempRangePlugin = {
         const range = scale.max - scale.min;
         if (range < MIN_TEMP_RANGE) {
             const mid = (scale.max + scale.min) / 2;
-            scale.min = mid - MIN_TEMP_RANGE / 2;
-            scale.max = mid + MIN_TEMP_RANGE / 2;
+            // use suggestedMin/Max so automatic scaling still works
+            scale.options.suggestedMin = mid - MIN_TEMP_RANGE / 2;
+            scale.options.suggestedMax = mid + MIN_TEMP_RANGE / 2;
+        } else {
+            // clear suggestions when not needed
+            scale.options.suggestedMin = undefined;
+            scale.options.suggestedMax = undefined;
         }
     }
 };
