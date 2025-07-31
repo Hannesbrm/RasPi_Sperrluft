@@ -38,17 +38,13 @@ const pwmData = [];
 const MIN_TEMP_RANGE = 5;
 const minTempRangePlugin = {
     id: 'minTempRangePlugin',
-    beforeUpdate: chart => {
-        const scale = chart.scales.y;
-        if (!scale) return;
+    afterDataLimits: scale => {
+        if (scale.id !== 'y') return;
         const range = scale.max - scale.min;
         if (range < MIN_TEMP_RANGE) {
             const mid = (scale.max + scale.min) / 2;
-            scale.options.min = mid - MIN_TEMP_RANGE / 2;
-            scale.options.max = mid + MIN_TEMP_RANGE / 2;
-        } else {
-            scale.options.min = undefined;
-            scale.options.max = undefined;
+            scale.min = mid - MIN_TEMP_RANGE / 2;
+            scale.max = mid + MIN_TEMP_RANGE / 2;
         }
     }
 };
