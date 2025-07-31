@@ -4,3 +4,4 @@ numpy
 simple_pid
 RPi.GPIO
 adafruit-circuitpython-mcp9600
+PyYAML
