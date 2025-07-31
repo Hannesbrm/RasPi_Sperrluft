@@ -2,16 +2,18 @@
 
 # Use the real sensor reader for the MAX31850K sensors
 from controller.sensor_reader import SensorReader
-from controller.sensor_reader_mcp9600 import SensorReaderMCP9600
 from controller.pid_controller import PIDController
 from controller.pwm_output import FanPWMController
 from controller.control_loop import ControlLoop
 from web import server
-from config import load_config, load_hardware_config
+from config import load_config
 from config.logging_config import logger
 
-# Sensor mapping will be constructed based on hardware_config.yaml
-sensor_mapping: dict[str, str] = {}
+# Mapping between semantic temperature labels and the 1-Wire sensor IDs
+sensor_mapping = {
+    "temperature1": "3b-68000ec3edfc",
+    "temperature2": "3b-2e141377f2c2",
+}
 
 
 def main() -> None:
@@ -36,35 +38,13 @@ def main() -> None:
     state.kd = float(cfg.get("kd", 0.0))
     state.postrun_seconds = float(cfg.get("postrun_seconds", 30.0))
 
-    # Read hardware configuration selecting sensor type and identifiers
-    hw_cfg = load_hardware_config()
-    sensor_type = str(hw_cfg.get("sensor_type", "max31850")).lower()
-
-    if sensor_type == "max31850":
-        ids_dict = hw_cfg.get("sensor_ids", {}) or {}
-        if not isinstance(ids_dict, dict):
-            ids_dict = {}
-        sensor_mapping.update(ids_dict)
-        sensor_reader = SensorReader(list(sensor_mapping.values()))
-    elif sensor_type == "mcp9600":
-        addresses = hw_cfg.get("sensor_addresses")
-        if not isinstance(addresses, list) or not addresses:
-            addresses = [0x60]
-        int_addrs = []
-        for addr in addresses:
-            try:
-                int_addrs.append(int(str(addr), 0))
-            except Exception:
-                logger.warning("Ungueltige Adresse %s in hardware_config.yaml", addr)
-        if not int_addrs:
-            int_addrs = [0x60]
-        sensor_reader = SensorReaderMCP9600(int_addrs)
-        for idx, addr in enumerate(int_addrs, start=1):
-            name = f"mcp_{addr:02x}"
-            sensor_mapping[f"temperature{idx}"] = name
-    else:
-        logger.error("Ungueltiger sensor_type '%s' in hardware_config.yaml", sensor_type)
-        sensor_reader = SensorReader([])
+    # IDs of the connected 1-Wire temperature sensors. Keys in ``sensor_mapping``
+    # represent the logical position while the values are the stable IDs of the
+    # sensors on the bus. Using ``list(sensor_mapping.values())`` ensures that
+    # the reader gets a reproducible ordering independent of the startup
+    # sequence of the sensors.
+    sensor_ids = list(sensor_mapping.values())
+    sensor_reader = SensorReader(sensor_ids)
 
     # Basic PID controller using parameters from the configuration.
     pid = PIDController(
