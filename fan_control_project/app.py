@@ -2,6 +2,7 @@
 
 # Use the real sensor reader for the MAX31850K sensors
 from controller.sensor_reader import SensorReader
+from controller.sensor_reader_mcp9600 import SensorReaderMCP9600
 from controller.pid_controller import PIDController
 from controller.pwm_output import FanPWMController
 from controller.control_loop import ControlLoop
