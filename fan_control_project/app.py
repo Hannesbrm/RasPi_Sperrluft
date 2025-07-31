@@ -10,7 +10,7 @@ from web import server
 from config import load_config, load_hardware_config
 from config.logging_config import logger
 
-# Sensor mapping will be constructed based on config.yaml
+# Sensor mapping will be constructed based on hardware_config.yaml
 sensor_mapping: dict[str, str] = {}
 
 
@@ -53,9 +53,9 @@ def main() -> None:
         int_addrs = []
         for addr in addresses:
             try:
-                int_addrs.append(int(addr, 0))
+                int_addrs.append(int(str(addr), 0))
             except Exception:
-                logger.warning("Ungueltige Adresse %s in config.yaml", addr)
+                logger.warning("Ungueltige Adresse %s in hardware_config.yaml", addr)
         if not int_addrs:
             int_addrs = [0x60]
         sensor_reader = SensorReaderMCP9600(int_addrs)
@@ -63,7 +63,7 @@ def main() -> None:
             name = f"mcp_{addr:02x}"
             sensor_mapping[f"temperature{idx}"] = name
     else:
-        logger.error("Ungueltiger sensor_type '%s' in config.yaml", sensor_type)
+        logger.error("Ungueltiger sensor_type '%s' in hardware_config.yaml", sensor_type)
         sensor_reader = SensorReader([])
 
     # Basic PID controller using parameters from the configuration.
