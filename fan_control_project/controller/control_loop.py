@@ -59,11 +59,11 @@ class ControlLoop:
 
     def _run_loop(self) -> None:
         while self._running:
-            self._update_once()
+            self.update_once()
             time.sleep(self.interval)
 
-    def _update_once(self) -> None:
-        """Read sensors, compute PWM value and update state."""
+    def _read_temperatures(self) -> tuple[Optional[float], Optional[float]]:
+        """Read both sensors and update state values."""
         sensor_data = self.sensor_reader.read_all()
 
         if self.state.swap_sensors:
@@ -94,9 +94,12 @@ class ControlLoop:
         if temp2 is not None:
             self.state.temperature2 = temp2
 
-        pwm_value = 0.0
-        now = datetime.now()
+        return temp1, temp2
 
+    def _handle_alarm_state(
+        self, temp2: Optional[float], now: datetime
+    ) -> tuple[bool, bool]:
+        """Update alarm and postrun state based on ``temp2``."""
         alarm = temp2 is not None and temp2 > self.state.alarm_threshold
 
         if alarm:
@@ -116,25 +119,39 @@ class ControlLoop:
             else:
                 self.state.postrun_until = None
 
+        return alarm, postrun_active
+
+    def _compute_pwm(
+        self, temp1: Optional[float], alarm: bool, postrun_active: bool
+    ) -> float:
+        """Compute the PWM value and update the controller."""
         if self.state.mode == Mode.MANUAL:
             pwm_value = self.state.manual_pwm
 
         elif self.state.mode == Mode.AUTO:
             if alarm or postrun_active:
-                # Alarm oder Nachlauf aktiv
                 pwm_value = self.state.alarm_pwm
             elif temp1 is not None:
-                # Regulärer PID-Betrieb
                 self.pid.update_setpoint(self.state.setpoint)
                 pwm_value = self.pid.compute(temp1)
                 pwm_value = 100.0 - pwm_value
                 pwm_value = max(0.0, min(100.0, pwm_value))
             else:
                 pwm_value = self.state.pwm1
+        else:
+            pwm_value = self.state.pwm1
 
         final_value = max(self.pwm.min_pwm, pwm_value)
         self.pwm.set_pwm(final_value)
         self.state.pwm1 = final_value
+        return final_value
+
+    def update_once(self) -> None:
+        """Perform a single control-loop iteration."""
+        temp1, temp2 = self._read_temperatures()
+        now = datetime.now()
+        alarm, postrun_active = self._handle_alarm_state(temp2, now)
+        final_value = self._compute_pwm(temp1, alarm, postrun_active)
         logger.debug(
             "PWM berechnet: temp1=%s temp2=%s alarm=%s pwm=%.2f",
             temp1,
