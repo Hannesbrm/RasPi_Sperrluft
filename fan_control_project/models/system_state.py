@@ -32,6 +32,9 @@ class SystemState:
         postrun_seconds: float = 30.0,
         status1: str = "ok",
         status2: str = "ok",
+        temp1_pin: str = "",
+        temp2_pin: str = "",
+        swap_sensors: bool = False,
     ) -> None:
         self._temperature1 = temperature1
         self._temperature2 = temperature2
@@ -51,6 +54,9 @@ class SystemState:
         self._alarm_active = False
         self._status1 = status1
         self._status2 = status2
+        self._temp1_pin = temp1_pin
+        self._temp2_pin = temp2_pin
+        self._swap_sensors = swap_sensors
 
     # Temperatur 1
     @property
@@ -215,6 +221,33 @@ class SystemState:
     def status2(self, value: str) -> None:
         self._status2 = value
 
+    # GPIO pin of the first temperature channel
+    @property
+    def temp1_pin(self) -> str:
+        return self._temp1_pin
+
+    @temp1_pin.setter
+    def temp1_pin(self, value: str) -> None:
+        self._temp1_pin = value
+
+    # GPIO pin of the second temperature channel
+    @property
+    def temp2_pin(self) -> str:
+        return self._temp2_pin
+
+    @temp2_pin.setter
+    def temp2_pin(self, value: str) -> None:
+        self._temp2_pin = value
+
+    # Whether the sensor roles are swapped
+    @property
+    def swap_sensors(self) -> bool:
+        return self._swap_sensors
+
+    @swap_sensors.setter
+    def swap_sensors(self, value: bool) -> None:
+        self._swap_sensors = value
+
     def to_dict(self) -> Dict[str, Any]:
         """Return a dictionary representation of the state."""
 
@@ -236,5 +269,8 @@ class SystemState:
             "alarm_active": self._alarm_active,
             "status1": self._status1,
             "status2": self._status2,
+            "temp1_pin": self._temp1_pin,
+            "temp2_pin": self._temp2_pin,
+            "swap_sensors": self._swap_sensors,
         }
 

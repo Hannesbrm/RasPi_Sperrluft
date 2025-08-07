@@ -100,6 +100,15 @@ def handle_set_alarm_threshold(data: Dict[str, Any]) -> None:
     logger.info("Alarmgrenze geaendert auf %s", value)
 
 
+@socketio.on("set_swap_sensors")
+def handle_set_swap_sensors(data: Dict[str, Any]) -> None:
+    """Swap the assignment of the two temperature sensors."""
+    value = bool(data.get("value", False))
+    state.swap_sensors = value
+    save_config(state)
+    logger.info("Sensorrollen getauscht: %s", value)
+
+
 @socketio.on("set_pid_params")
 def handle_set_pid_params(data: Dict[str, Any]) -> None:
     """Update PID controller parameters."""

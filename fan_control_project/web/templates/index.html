@@ -261,9 +261,9 @@ canvas {
 <div id="statusTab" class="tab-content active">
   <div class="card">
     <h2><i class="fas fa-info-circle"></i> Status</h2>
-    <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 1: <span id="temp1">--</span> °C</div>
+    <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 1 (<span id="temp1Pin">--</span>): <span id="temp1">--</span> °C</div>
     <div class="value" id="temp1Status">&nbsp;</div>
-    <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 2: <span id="temp2">--</span> °C</div>
+    <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 2 (<span id="temp2Pin">--</span>): <span id="temp2">--</span> °C</div>
     <div class="value" id="temp2Status">&nbsp;</div>
     <div class="value"><i class="fas fa-tachometer-alt"></i> PWM: <span id="pwm">--</span> %</div>
     <div class="value"><i class="fas fa-cogs"></i> Mode: <span id="mode">--</span></div>
@@ -320,6 +320,16 @@ canvas {
       <input type="submit" value="Senden">
       <div class="feedback" id="postrunFeedback">✔️ Nachlaufzeit gesendet</div>
     </form>
+
+    <hr style="margin: 1.5rem 0;">
+
+    <label for="swapToggle"><i class="fas fa-exchange-alt"></i> Sensorrollen tauschen</label>
+    <label class="switch">
+      <input type="checkbox" id="swapToggle">
+      <span class="slider"></span>
+    </label>
+    <div class="value">Temperature 1: <span id="temp1PinSetting">--</span></div>
+    <div class="value">Temperature 2: <span id="temp2PinSetting">--</span></div>
   </div>
 
   <div class="card">

@@ -8,12 +8,13 @@ from controller.control_loop import ControlLoop
 from web import server
 from config import load_config
 from config.logging_config import logger
+from models.sensor_info import SensorInfo
 
-# Mapping between semantic temperature labels and the 1-Wire sensor IDs
-sensor_mapping = {
-    "temperature1": "3b-68000ec3edfc",
-    "temperature2": "3b-2e141377f2c2",
-}
+# Description of connected sensors including ROM IDs and GPIO pins
+sensors = [
+    SensorInfo(rom_id="3b-68000ec3edfc", pin="D24"),
+    SensorInfo(rom_id="3b-2e141377f2c2", pin="D26"),
+]
 
 
 def main() -> None:
@@ -38,13 +39,19 @@ def main() -> None:
     state.kd = float(cfg.get("kd", 0.0))
     state.postrun_seconds = float(cfg.get("postrun_seconds", 30.0))
 
-    # IDs of the connected 1-Wire temperature sensors. Keys in ``sensor_mapping``
-    # represent the logical position while the values are the stable IDs of the
-    # sensors on the bus. Using ``list(sensor_mapping.values())`` ensures that
-    # the reader gets a reproducible ordering independent of the startup
-    # sequence of the sensors.
-    sensor_ids = list(sensor_mapping.values())
+    # IDs of the connected 1-Wire temperature sensors. Using the order of the
+    # ``sensors`` list ensures a stable mapping independent of the startup
+    # sequence on the bus.
+    state.swap_sensors = bool(cfg.get("swap_sensors", False))
+    sensor_ids = [s.rom_id for s in sensors]
     sensor_reader = SensorReader(sensor_ids)
+
+    if state.swap_sensors:
+        state.temp1_pin = sensors[1].pin
+        state.temp2_pin = sensors[0].pin
+    else:
+        state.temp1_pin = sensors[0].pin
+        state.temp2_pin = sensors[1].pin
 
     # Basic PID controller using parameters from the configuration.
     pid = PIDController(
@@ -62,8 +69,8 @@ def main() -> None:
         sensor_reader,
         pid,
         pwm_controller,
-        state.alarm_pwm,
-        sensor_mapping=sensor_mapping,
+        sensors=sensors,
+        alarm_pwm=state.alarm_pwm,
     )
     control_loop.start()
     logger.info("Steuerung gestartet")

@@ -19,6 +19,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "ki": 0.1,
     "kd": 0.0,
     "postrun_seconds": 30.0,
+    "swap_sensors": False,
 }
 
 
@@ -73,6 +74,8 @@ def save_config(state: SystemState) -> None:
         data["kd"] = state.kd
     if hasattr(state, "postrun_seconds"):
         data["postrun_seconds"] = state.postrun_seconds
+    if hasattr(state, "swap_sensors"):
+        data["swap_sensors"] = state.swap_sensors
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
     logger.info("Konfiguration gespeichert: %s", data)
