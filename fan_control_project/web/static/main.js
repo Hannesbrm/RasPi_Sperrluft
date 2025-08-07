@@ -4,9 +4,12 @@ const temp1El = document.getElementById('temp1');
 const temp2El = document.getElementById('temp2');
 const temp1StatusEl = document.getElementById('temp1Status');
 const temp2StatusEl = document.getElementById('temp2Status');
+const temp1PinEl = document.getElementById('temp1Pin');
+const temp2PinEl = document.getElementById('temp2Pin');
 const pwmEl = document.getElementById('pwm');
 const modeEl = document.getElementById('mode');
 const modeToggle = document.getElementById('modeToggle');
+const swapToggle = document.getElementById('swapToggle');
 const manualPwmForm = document.getElementById('manualPwmForm');
 const manualPwmInput = document.getElementById('manualPwmInput');
 const alarmPwmForm = document.getElementById('alarmPwmForm');
@@ -17,6 +20,8 @@ const postrunForm = document.getElementById('postrunForm');
 const postrunInput = document.getElementById('postrunInput');
 const setpointEl = document.getElementById('setpoint');
 const alarmThresholdEl = document.getElementById('alarmThreshold');
+const temp1PinSettingEl = document.getElementById('temp1PinSetting');
+const temp2PinSettingEl = document.getElementById('temp2PinSetting');
 const alarmIndicatorEl = document.getElementById('alarmIndicator');
 const mainHeader = document.getElementById('main-header');
 const rebootButton = document.getElementById('rebootButton');
@@ -124,6 +129,21 @@ socket.on('state_update', data => {
     }
     if (data.status2 !== undefined && temp2StatusEl) {
         temp2StatusEl.textContent = data.status2 === 'ok' ? '' : `Sensorfehler: ${data.status2}`;
+    }
+    if (data.temp1_pin !== undefined && temp1PinEl) {
+        temp1PinEl.textContent = data.temp1_pin;
+    }
+    if (data.temp2_pin !== undefined && temp2PinEl) {
+        temp2PinEl.textContent = data.temp2_pin;
+    }
+    if (data.temp1_pin !== undefined && temp1PinSettingEl) {
+        temp1PinSettingEl.textContent = data.temp1_pin;
+    }
+    if (data.temp2_pin !== undefined && temp2PinSettingEl) {
+        temp2PinSettingEl.textContent = data.temp2_pin;
+    }
+    if (data.swap_sensors !== undefined && swapToggle) {
+        swapToggle.checked = data.swap_sensors;
     }
     if (data.pwm1 !== undefined) {
         pwmEl.textContent = Number(data.pwm1).toFixed(1);
@@ -288,6 +308,12 @@ modeToggle.addEventListener('change', () => {
     socket.emit('set_mode', { mode });
     manualPwmForm.style.display = modeToggle.checked ? 'block' : 'none';
 });
+
+if (swapToggle) {
+    swapToggle.addEventListener('change', () => {
+        socket.emit('set_swap_sensors', { value: swapToggle.checked });
+    });
+}
 
 // Listen for system state updates to adjust header color
 socket.on('system_state', data => {

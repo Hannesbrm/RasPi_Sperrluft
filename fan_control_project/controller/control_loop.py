@@ -5,12 +5,13 @@ from __future__ import annotations
 import threading
 import time
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, List
 
 from .sensor_reader import SensorReader
 from .pid_controller import PIDController
 from .pwm_output import FanPWMController
 from models import SystemState, Mode
+from models.sensor_info import SensorInfo
 from config.logging_config import logger
 
 
@@ -23,9 +24,9 @@ class ControlLoop:
         sensor_reader: SensorReader,
         pid_controller: PIDController,
         pwm_controller: FanPWMController,
+        sensors: List[SensorInfo],
         alarm_pwm: float = 100.0,
         interval: float = 0.5,
-        sensor_mapping: dict[str, str] | None = None,
     ) -> None:
         self.state = state
         self.sensor_reader = sensor_reader
@@ -33,7 +34,7 @@ class ControlLoop:
         self.pwm = pwm_controller
         self.state.alarm_pwm = alarm_pwm
         self.interval = interval
-        self.sensor_mapping = sensor_mapping or {}
+        self.sensors = sensors
 
         self._thread: Optional[threading.Thread] = None
         self._running = False
@@ -64,8 +65,19 @@ class ControlLoop:
     def _update_once(self) -> None:
         """Read sensors, compute PWM value and update state."""
         sensor_data = self.sensor_reader.read_all()
-        entry1 = sensor_data.get(self.sensor_mapping.get("temperature1"), {})
-        entry2 = sensor_data.get(self.sensor_mapping.get("temperature2"), {})
+
+        if self.state.swap_sensors:
+            sensor1_info = self.sensors[1]
+            sensor2_info = self.sensors[0]
+        else:
+            sensor1_info = self.sensors[0]
+            sensor2_info = self.sensors[1]
+
+        entry1 = sensor_data.get(sensor1_info.rom_id, {})
+        entry2 = sensor_data.get(sensor2_info.rom_id, {})
+
+        self.state.temp1_pin = sensor1_info.pin
+        self.state.temp2_pin = sensor2_info.pin
 
         logger.debug("Sensor1=%s Sensor2=%s", entry1, entry2)
 
