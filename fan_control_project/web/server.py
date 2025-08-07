@@ -53,7 +53,7 @@ def register_state_handler(
 def _broadcast_state() -> None:
     """Send the current system state to all connected clients periodically."""
     while not _stop_event.is_set():
-        socketio.emit("state_update", state.to_dict())
+        socketio.emit("state_update", state.as_dict())
         socketio.sleep(1)
 
 
@@ -61,7 +61,7 @@ def _broadcast_state() -> None:
 def handle_connect() -> None:
     """Send initial state when a client connects."""
     logger.info("Client verbunden")
-    emit("state_update", state.to_dict())
+    emit("state_update", state.as_dict())
 
 
 # Simple state update handlers
