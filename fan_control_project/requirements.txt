@@ -3,3 +3,7 @@ Flask-SocketIO
 numpy
 simple_pid
 RPi.GPIO
+pytest
+pytest-cov
+pytest-mock
+freezegun

@@ -1,11 +1,5 @@
 """Tests for PIDController wrapper."""
 
-from pathlib import Path
-import sys
-
-# Ensure project root on path
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
 from controller.pid_controller import PIDController
 
 
