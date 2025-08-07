@@ -17,6 +17,8 @@ class FanPWMController:
         self.frequency = frequency
         self.min_pwm = min_pwm
         self.pwm = None
+        # Store the last PWM value set for testing and inspection
+        self.last_value = 0.0
 
         if _HAS_GPIO:
             GPIO.setwarnings(False)
@@ -27,14 +29,13 @@ class FanPWMController:
             logger.info("PWM initialisiert auf Pin %s", self.pin)
         else:
             # Dummy mode when running off the Pi
-            self._value = 0.0
             logger.info("PWM Dummy-Modus aktiv")
 
     def set_pwm(self, value: float) -> None:
         """Set PWM duty cycle (0.0-100.0) respecting ``min_pwm``."""
         value = max(self.min_pwm, min(100.0, value))
+        self.last_value = value
         if not _HAS_GPIO:
-            self._value = value
             logger.debug("Dummy PWM gesetzt: %.2f", value)
             return
 
