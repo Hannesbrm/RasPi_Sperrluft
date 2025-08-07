@@ -3,7 +3,7 @@ from __future__ import annotations
 """Simple Flask server exposing live fan data via Socket.IO."""
 
 from threading import Event
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 import os
 import time
 
@@ -35,6 +35,21 @@ pid_controller: PIDController | None = None
 # Event used to stop the background thread when the app shuts down
 _stop_event = Event()
 
+
+def register_state_handler(
+    event_name: str, state_attr: str, cast_func: Callable[[Any], Any] = float
+) -> None:
+    """Register a simple Socket.IO handler that updates ``state`` attributes."""
+
+    default = False if cast_func is bool else 0
+
+    @socketio.on(event_name)
+    def _handler(data: Dict[str, Any]) -> None:
+        value = cast_func(data.get("value", default))
+        setattr(state, state_attr, value)
+        save_config(state)
+        logger.info("%s geaendert auf %s", state_attr, value)
+
 def _broadcast_state() -> None:
     """Send the current system state to all connected clients periodically."""
     while not _stop_event.is_set():
@@ -49,12 +64,14 @@ def handle_connect() -> None:
     emit("state_update", state.to_dict())
 
 
-@socketio.on("set_setpoint")
-def handle_set_setpoint(data: Dict[str, Any]) -> None:
-    value = float(data.get("value", 0))
-    state.setpoint = value
-    save_config(state)
-    logger.info("Setpoint geaendert auf %s", value)
+# Simple state update handlers
+register_state_handler("set_setpoint", "setpoint")
+register_state_handler("set_manual_pwm", "manual_pwm")
+register_state_handler("set_alarm_pwm", "alarm_pwm")
+register_state_handler("set_min_pwm", "min_pwm")
+register_state_handler("set_alarm_threshold", "alarm_threshold")
+register_state_handler("set_swap_sensors", "swap_sensors", bool)
+register_state_handler("set_postrun_seconds", "postrun_seconds")
 
 
 @socketio.on("set_mode")
@@ -63,50 +80,6 @@ def handle_set_mode(data: Dict[str, Any]) -> None:
     if mode in ("auto", "manual"):
         state.mode = Mode(mode)
         logger.info("Modus geaendert auf %s", mode)
-
-
-@socketio.on("set_manual_pwm")
-def handle_set_manual_pwm(data: Dict[str, Any]) -> None:
-    value = float(data.get("value", 0))
-    state.manual_pwm = value
-    save_config(state)
-    logger.info("Manual PWM geaendert auf %s", value)
-
-
-@socketio.on("set_alarm_pwm")
-def handle_set_alarm_pwm(data: Dict[str, Any]) -> None:
-    """Update PWM value used when alarm is active."""
-    value = float(data.get("value", 0))
-    state.alarm_pwm = value
-    save_config(state)
-    logger.info("Alarm PWM geaendert auf %s", value)
-
-
-@socketio.on("set_min_pwm")
-def handle_set_min_pwm(data: Dict[str, Any]) -> None:
-    """Update the minimal PWM value."""
-    value = float(data.get("value", 0))
-    state.min_pwm = value
-    save_config(state)
-    logger.info("Min PWM geaendert auf %s", value)
-
-
-@socketio.on("set_alarm_threshold")
-def handle_set_alarm_threshold(data: Dict[str, Any]) -> None:
-    """Update the alarm temperature threshold."""
-    value = float(data.get("value", 0))
-    state.alarm_threshold = value
-    save_config(state)
-    logger.info("Alarmgrenze geaendert auf %s", value)
-
-
-@socketio.on("set_swap_sensors")
-def handle_set_swap_sensors(data: Dict[str, Any]) -> None:
-    """Swap the assignment of the two temperature sensors."""
-    value = bool(data.get("value", False))
-    state.swap_sensors = value
-    save_config(state)
-    logger.info("Sensorrollen getauscht: %s", value)
 
 
 @socketio.on("set_pid_params")
@@ -127,15 +100,6 @@ def handle_set_pid_params(data: Dict[str, Any]) -> None:
         ki,
         kd,
     )
-
-
-@socketio.on("set_postrun_seconds")
-def handle_set_postrun_seconds(data: Dict[str, Any]) -> None:
-    """Update the post-run time for the fan after an alarm."""
-    value = float(data.get("value", 0))
-    state.postrun_seconds = value
-    save_config(state)
-    logger.info("Nachlaufzeit geaendert auf %s", value)
 
 
 @socketio.on("request_logs")
