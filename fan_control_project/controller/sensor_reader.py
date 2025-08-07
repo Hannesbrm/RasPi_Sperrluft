@@ -2,33 +2,35 @@
 
 """Modul zum Auslesen von MAX31850K Temperatursensoren."""
 
-import os
+from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
 from config.logging_config import logger
 
 
 class SensorReader:
-    def __init__(self, sensor_ids: List[str]):
+    def __init__(
+        self, sensor_ids: List[str], base_path: Path | str = Path("/sys/bus/w1/devices")
+    ):
         """Initialisiert den SensorReader mit den gegebenen Sensor-IDs.
 
         Die IDs sollten den Verzeichnisnamen der Sensoren unter
         ``/sys/bus/w1/devices`` entsprechen (z.B. ``3b-000000abcd``).
         """
         self.sensor_ids = list(sensor_ids)
-        self.device_files: List[Optional[str]] = []
-        base_path = "/sys/bus/w1/devices"
+        self.device_files: List[Optional[Path]] = []
+        base = Path(base_path)
 
         for sensor_id in self.sensor_ids:
-            path = os.path.join(base_path, sensor_id, "w1_slave")
-            if os.path.exists(path):
+            path = base / sensor_id / "w1_slave"
+            if path.exists():
                 self.device_files.append(path)
                 logger.debug("Sensor %s gefunden", sensor_id)
             else:
                 self.device_files.append(None)
                 logger.warning("Sensor %s nicht gefunden", sensor_id)
 
-    def _read_sensor_file(self, device_file: str) -> Tuple[Optional[float], str]:
+    def _read_sensor_file(self, device_file: Path) -> Tuple[Optional[float], str]:
         """Lies die Temperatur und den Status aus einer w1_slave-Datei.
 
         Die Temperatur wird immer zurückgegeben, sofern sie aus der Datei
@@ -39,7 +41,7 @@ class SensorReader:
         """
 
         try:
-            with open(device_file, "r") as f:
+            with device_file.open("r") as f:
                 lines = f.readlines()
 
             if lines[0].strip()[-3:] != "YES":
