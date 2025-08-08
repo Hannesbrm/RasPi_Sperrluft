@@ -30,6 +30,13 @@ def tmp_config(tmp_path, monkeypatch):
 
 
 @pytest.fixture
+def no_save_config(monkeypatch):
+    """Disable persisting configuration during tests."""
+    monkeypatch.setattr(config_manager, "save_config", lambda s: None)
+    monkeypatch.setattr(webserver, "save_config", lambda s: None)
+
+
+@pytest.fixture
 def dummy_pwm():
     class DummyPWM:
         def __init__(self, min_pwm: float = 0.0):

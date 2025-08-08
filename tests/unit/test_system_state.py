@@ -13,3 +13,11 @@ def test_as_dict_includes_postrun_remaining():
     state.postrun_until = datetime.now() + timedelta(seconds=5)
     data = state.as_dict()
     assert 0 < data["postrun_remaining"] <= 5
+
+
+def test_mode_conversion_and_negative_remaining():
+    state = SystemState(mode="manual")
+    assert state.mode.name == "MANUAL"
+    state.postrun_until = datetime.now() - timedelta(seconds=5)
+    data = state.as_dict()
+    assert data["postrun_remaining"] == 0
