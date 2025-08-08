@@ -62,7 +62,12 @@ def test_pwm_gpio_interaction(monkeypatch):
     assert fake_gpio.pwm_instance.started
     pwm.set_pwm(150.0)
     assert pwm.last_value == 100.0
-    assert fake_gpio.pwm_instance.last == 100.0
+    # 100% logical PWM should result in 0% hardware duty cycle
+    assert fake_gpio.pwm_instance.last == 0.0
+    pwm.set_pwm(40.0)
+    assert pwm.last_value == 40.0
+    # Normal values are inverted as well
+    assert fake_gpio.pwm_instance.last == 60.0
     pwm.stop()
     assert fake_gpio.cleanup_calls == [17]
     assert fake_gpio.pwm_instance.stopped

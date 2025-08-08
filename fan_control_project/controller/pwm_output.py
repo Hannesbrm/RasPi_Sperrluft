@@ -17,7 +17,7 @@ class FanPWMController:
         self.frequency = frequency
         self.min_pwm = min_pwm
         self.pwm = None
-        # Store the last PWM value set for testing and inspection
+        # Store the last logical PWM value set (before inversion)
         self.last_value = 0.0
 
         if _HAS_GPIO:
@@ -25,23 +25,30 @@ class FanPWMController:
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(self.pin, GPIO.OUT)
             self.pwm = GPIO.PWM(self.pin, self.frequency)
-            self.pwm.start(0)
+            # Start with inverted 100% duty so the fan is stopped initially
+            self.pwm.start(100)
             logger.info("PWM initialisiert auf Pin %s", self.pin)
         else:
             # Dummy mode when running off the Pi
             logger.info("PWM Dummy-Modus aktiv")
 
     def set_pwm(self, value: float) -> None:
-        """Set PWM duty cycle (0.0-100.0) respecting ``min_pwm``."""
+        """Set PWM duty cycle (0.0-100.0) respecting ``min_pwm``.
+
+        The physical output is inverted so that a logical value of ``100``
+        results in a hardware duty cycle of ``0`` and vice versa.
+        """
         value = max(self.min_pwm, min(100.0, value))
         self.last_value = value
+        # Invert the duty cycle for the actual hardware output
+        actual_value = 100.0 - value
         if not _HAS_GPIO:
-            logger.debug("Dummy PWM gesetzt: %.2f", value)
+            logger.debug("Dummy PWM gesetzt: %.2f (invertiert: %.2f)", value, actual_value)
             return
 
         if self.pwm:
-            self.pwm.ChangeDutyCycle(value)
-            logger.debug("PWM gesetzt: %.2f", value)
+            self.pwm.ChangeDutyCycle(actual_value)
+            logger.debug("PWM gesetzt: %.2f (invertiert: %.2f)", value, actual_value)
 
     def stop(self) -> None:
         """Stop PWM and clean up GPIO."""
