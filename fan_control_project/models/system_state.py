@@ -48,6 +48,12 @@ class SystemState:
 
         data = asdict(self)
         data["mode"] = self.mode.value
+        remaining = 0
+        if self.postrun_until is not None:
+            remaining = int((self.postrun_until - datetime.now()).total_seconds())
+            if remaining < 0:
+                remaining = 0
+        data["postrun_remaining"] = remaining
         data.pop("postrun_until", None)
         return data
 

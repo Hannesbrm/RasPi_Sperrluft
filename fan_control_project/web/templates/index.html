@@ -39,6 +39,11 @@ header {
   margin-top: 0.5rem;
 }
 
+.postrun-box {
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
 .reboot-btn {
   position: absolute;
   top: 0.75rem;
@@ -234,6 +239,9 @@ canvas {
     <h1><i class="fas fa-fan"></i> Sperrluft Steuerung</h1>
     <div id="alarmIndicator" class="alarm-box safe">
       <span class="icon">🟢</span> Kein Alarm
+    </div>
+    <div id="postrunCountdown" class="postrun-box" style="display:none;">
+      Nachlauf aktiv: <span id="postrunSeconds"></span> s
     </div>
   </div>
   <button id="rebootButton" class="reboot-btn" title="Neustart">🔄 Neustart</button>

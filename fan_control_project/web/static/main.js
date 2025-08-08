@@ -23,6 +23,8 @@ const alarmThresholdEl = document.getElementById('alarmThreshold');
 const temp1PinSettingEl = document.getElementById('temp1PinSetting');
 const temp2PinSettingEl = document.getElementById('temp2PinSetting');
 const alarmIndicatorEl = document.getElementById('alarmIndicator');
+const postrunCountdownEl = document.getElementById('postrunCountdown');
+const postrunSecondsEl = document.getElementById('postrunSeconds');
 const mainHeader = document.getElementById('main-header');
 const rebootButton = document.getElementById('rebootButton');
 const setpointInput = document.getElementById('setpointInput');
@@ -33,6 +35,9 @@ const kiInput = document.getElementById('kiInput');
 const kdInput = document.getElementById('kdInput');
 const tempChartCtx = document.getElementById('tempChart').getContext('2d');
 const logContainer = document.getElementById('logContainer');
+
+let postrunRemaining = 0;
+let postrunTimer = null;
 
 const maxPoints = 200;
 const labels = [];
@@ -109,6 +114,42 @@ function showFeedback(id) {
     }
 }
 
+function updatePostrunCountdown(seconds) {
+    postrunRemaining = seconds;
+    if (postrunRemaining > 0) {
+        if (postrunCountdownEl) {
+            postrunCountdownEl.style.display = 'block';
+            if (postrunSecondsEl) {
+                postrunSecondsEl.textContent = postrunRemaining;
+            }
+        }
+        if (!postrunTimer) {
+            postrunTimer = setInterval(() => {
+                if (postrunRemaining > 0) {
+                    postrunRemaining -= 1;
+                    if (postrunSecondsEl) {
+                        postrunSecondsEl.textContent = postrunRemaining;
+                    }
+                } else {
+                    if (postrunCountdownEl) {
+                        postrunCountdownEl.style.display = 'none';
+                    }
+                    clearInterval(postrunTimer);
+                    postrunTimer = null;
+                }
+            }, 1000);
+        }
+    } else {
+        if (postrunCountdownEl) {
+            postrunCountdownEl.style.display = 'none';
+        }
+        if (postrunTimer) {
+            clearInterval(postrunTimer);
+            postrunTimer = null;
+        }
+    }
+}
+
 socket.on('state_update', data => {
     if (data.temperature1 !== undefined) {
         if (data.temperature1 === null) {
@@ -175,6 +216,9 @@ socket.on('state_update', data => {
     }
     if (data.manual_pwm !== undefined) {
         manualPwmInput.placeholder = Number(data.manual_pwm).toFixed(0);
+    }
+    if (data.postrun_remaining !== undefined) {
+        updatePostrunCountdown(Math.max(0, Math.round(data.postrun_remaining)));
     }
     if (
         data.temperature2 !== undefined &&
