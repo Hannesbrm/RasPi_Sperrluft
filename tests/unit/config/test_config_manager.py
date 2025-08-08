@@ -19,3 +19,17 @@ def test_load_and_save_config(tmp_config):
     assert loaded["setpoint"] == 42.0
     assert loaded["alarm_threshold"] == 55.0
     assert loaded["manual_pwm"] == 10.0
+
+
+def test_load_config_with_invalid_json(tmp_config):
+    Path(config_manager.CONFIG_PATH).write_text("{ invalid")
+    data = config_manager.load_config()
+    assert data == config_manager.DEFAULT_CONFIG
+
+
+def test_load_config_adds_missing_keys(tmp_config):
+    Path(config_manager.CONFIG_PATH).write_text(json.dumps({"setpoint": 1.0}))
+    data = config_manager.load_config()
+    assert all(k in data for k in config_manager.DEFAULT_CONFIG)
+    loaded = json.loads(Path(config_manager.CONFIG_PATH).read_text())
+    assert all(k in loaded for k in config_manager.DEFAULT_CONFIG)
