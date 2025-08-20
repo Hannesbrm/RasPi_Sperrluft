@@ -2,8 +2,9 @@ import json
 import logging
 import os
 from collections import deque
+from typing import Callable
 
-__all__ = ["logger", "log_buffer"]
+__all__ = ["logger", "log_buffer", "set_log_callback"]
 
 
 class JsonFormatter(logging.Formatter):
@@ -38,6 +39,15 @@ logger = logging.getLogger("fan_control")
 log_buffer: deque[dict[str, object]] = deque(maxlen=200)
 
 
+_log_callback: "Callable[[dict[str, object]], None] | None" = None
+
+
+def set_log_callback(cb: "Callable[[dict[str, object]], None] | None") -> None:
+    """Register a callback that is invoked for each new log entry."""
+    global _log_callback
+    _log_callback = cb
+
+
 class WebLogHandler(logging.Handler):
     """Handler that stores logs in a deque for web display."""
 
@@ -48,6 +58,8 @@ class WebLogHandler(logging.Handler):
         except json.JSONDecodeError:
             entry = {"level": record.levelname.lower(), "message": msg}
         log_buffer.append(entry)
+        if _log_callback:
+            _log_callback(entry)
 
 
 _json_formatter = JsonFormatter()

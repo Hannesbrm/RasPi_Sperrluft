@@ -106,6 +106,10 @@ const tempChart = new Chart(tempChartCtx, {
     }
 });
 
+socket.on('connect', () => {
+    socket.emit('request_logs');
+});
+
 function showFeedback(id) {
     const el = document.getElementById(id);
     if (el) {
@@ -390,6 +394,27 @@ socket.on('logs_update', logs => {
             <td>${entry.message || ''}</td>`;
         logContainer.appendChild(tr);
     });
+});
+
+socket.on('log_entry', entry => {
+    if (!logContainer) return;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${entry.time || ''}</td>
+        <td>${entry.level || ''}</td>
+        <td>${entry.name || ''}</td>
+        <td>${entry.sensor_addr || ''}</td>
+        <td>${entry.attempt || ''}</td>
+        <td>${entry.dt_ms || ''}</td>
+        <td>${entry.status || ''}</td>
+        <td>${entry.temp_hot ?? ''}</td>
+        <td>${entry.temp_cold ?? ''}</td>
+        <td>${entry.delta ?? ''}</td>
+        <td>${entry.message || ''}</td>`;
+    logContainer.appendChild(tr);
+    while (logContainer.children.length > 200) {
+        logContainer.removeChild(logContainer.firstChild);
+    }
 });
 
 if (scanBtn) {

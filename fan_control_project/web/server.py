@@ -10,7 +10,7 @@ import time
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 
-from config.logging_config import logger, log_buffer
+from config.logging_config import logger, log_buffer, set_log_callback
 
 from models.system_state import SystemState, Mode
 from config import save_config
@@ -26,6 +26,14 @@ app.config["SECRET_KEY"] = "secret"
 
 # Flask-SocketIO setup using threading async mode (works without eventlet)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+
+
+def _emit_log(entry: Dict[str, Any]) -> None:
+    """Forward log entries to connected web clients."""
+    socketio.emit("log_entry", entry)
+
+
+set_log_callback(_emit_log)
 
 # Global state object that would normally be updated by a control loop
 state = SystemState()
@@ -114,9 +122,12 @@ def handle_request_logs() -> None:
 def handle_scan_i2c() -> None:
     """Trigger an I2C bus scan and return the result."""
     if sensor_reader is None:
+        logger.warning("I2C-Scan angefordert, aber kein SensorReader vorhanden")
         emit("scan_result", [])
         return
+    logger.info("Starte I2C-Scan")
     addrs = sensor_reader.scan_bus()
+    logger.info("I2C-Scan abgeschlossen: %s", addrs)
     emit("scan_result", addrs)
 
 
@@ -124,9 +135,13 @@ def handle_scan_i2c() -> None:
 def handle_test_measure() -> None:
     """Perform a one-off measurement and return raw data."""
     if sensor_reader is None:
+        logger.warning("Testmessung angefordert, aber kein SensorReader vorhanden")
         emit("test_measure_result", {})
         return
-    emit("test_measure_result", sensor_reader.read_all())
+    logger.info("Starte Testmessung")
+    data = sensor_reader.read_all()
+    logger.info("Testmessung Ergebnis: %s", data)
+    emit("test_measure_result", data)
 
 
 @socketio.on("request_reboot")
