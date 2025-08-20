@@ -83,6 +83,10 @@ class ControlLoop:
 
         temp1 = entry1.get("temperature")
         temp2 = entry2.get("temperature")
+        amb1 = entry1.get("ambient")
+        amb2 = entry2.get("ambient")
+        delta1 = entry1.get("delta")
+        delta2 = entry2.get("delta")
         status1 = entry1.get("status", "error")
         status2 = entry2.get("status", "error")
 
@@ -93,6 +97,14 @@ class ControlLoop:
             self.state.temperature1 = temp1
         if temp2 is not None:
             self.state.temperature2 = temp2
+        if amb1 is not None:
+            self.state.ambient1 = amb1
+        if amb2 is not None:
+            self.state.ambient2 = amb2
+        if delta1 is not None:
+            self.state.delta1 = delta1
+        if delta2 is not None:
+            self.state.delta2 = delta2
 
         return temp1, temp2
 

@@ -20,6 +20,18 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "kd": 0.0,
     "postrun_seconds": 30.0,
     "swap_sensors": False,
+    # I2C sensor addresses as hex strings
+    "sensor_addresses": ["0x66", "0x67"],
+    # Default configuration for the MCP9600 sensors
+    "mcp9600": {
+        "type": "K",
+        "filter": 0,
+        "conversion": "continuous",
+        "data_rate": 8,
+        "retries": 2,
+        "backoff_ms": 50,
+        "stale_threshold_count": 5,
+    },
 }
 
 
@@ -47,6 +59,16 @@ def load_config() -> Dict[str, Any]:
         if key not in data:
             data[key] = default
             changed = True
+        elif isinstance(default, dict):
+            current = data.get(key, {})
+            if not isinstance(current, dict):
+                data[key] = default
+                changed = True
+            else:
+                for sub_key, sub_val in default.items():
+                    if sub_key not in current:
+                        current[sub_key] = sub_val
+                        changed = True
 
     if changed:
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:

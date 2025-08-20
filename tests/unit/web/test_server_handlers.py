@@ -37,10 +37,10 @@ def test_set_pid_params_handler(socketio_client, state, no_save_config, monkeypa
 
 def test_request_logs_handler(socketio_client):
     log_buffer.clear()
-    log_buffer.append("entry")
+    log_buffer.append({"message": "entry", "level": "info"})
     socketio_client.emit("request_logs")
     received = socketio_client.get_received()
-    assert any(p["name"] == "logs_update" and p["args"][0] == ["entry"] for p in received)
+    assert any(p["name"] == "logs_update" and p["args"][0] == [{"message": "entry", "level": "info"}] for p in received)
 
 
 def test_request_reboot_denied(monkeypatch):

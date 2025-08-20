@@ -17,6 +17,35 @@ sensors = [
 ]
 
 
+def _system_checks() -> None:
+    """Run simple system checks and log the results."""
+    import os
+    import grp
+    import getpass
+
+    if os.path.exists("/dev/i2c-1"):
+        logger.info("I2C-Bus verfuegbar")
+    else:
+        logger.warning("/dev/i2c-1 nicht gefunden")
+
+    user = getpass.getuser()
+    groups = [g.gr_name for g in grp.getgrall() if user in g.gr_mem or g.gr_gid == os.getgid()]
+    if "i2c" in groups:
+        logger.info("Benutzer %s in i2c-Gruppe", user)
+    else:
+        logger.warning("Benutzer %s nicht in i2c-Gruppe", user)
+
+    try:
+        with open("/boot/config.txt", "r", encoding="utf-8") as f:
+            content = f.read()
+        if "w1-gpio" in content:
+            logger.warning("1-Wire Overlay aktiv")
+        else:
+            logger.info("1-Wire Overlay deaktiviert")
+    except OSError:
+        logger.debug("/boot/config.txt nicht lesbar")
+
+
 def main() -> None:
     """Initialize all components and start the web server."""
     logger.info("Starte Anwendung")
@@ -43,8 +72,12 @@ def main() -> None:
     # ``sensors`` list ensures a stable mapping independent of the startup
     # sequence on the bus.
     state.swap_sensors = bool(cfg.get("swap_sensors", False))
-    sensor_ids = [s.rom_id for s in sensors]
-    sensor_reader = SensorReader(sensor_ids)
+    sensor_ids = cfg.get("sensor_addresses", []) or [s.rom_id for s in sensors]
+    mcp_params = cfg.get("mcp9600", {})
+    sensor_reader = SensorReader(sensor_ids, mcp_params=mcp_params)
+
+    found = sensor_reader.scan_bus()
+    logger.info("I2C-Scan gefunden=%s konfiguriert=%s", found, sensor_ids)
 
     if state.swap_sensors:
         state.temp1_pin = sensors[1].pin
@@ -75,6 +108,8 @@ def main() -> None:
     control_loop.start()
     logger.info("Steuerung gestartet")
 
+    server.sensor_reader = sensor_reader
+
     # Expose PID controller to the web server for runtime updates
     server.pid_controller = pid
 
@@ -83,5 +118,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    _system_checks()
     main()
 

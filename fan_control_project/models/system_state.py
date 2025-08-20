@@ -19,6 +19,10 @@ class SystemState:
 
     temperature1: float = 0.0
     temperature2: float = 0.0
+    ambient1: float = 0.0
+    ambient2: float = 0.0
+    delta1: float = 0.0
+    delta2: float = 0.0
     pwm1: float = 0.0
     pwm2: float = 0.0
     setpoint: float = 0.0
