@@ -358,7 +358,12 @@ canvas {
 <div id="logTab" class="tab-content">
   <div class="card">
     <h2><i class="fas fa-file-alt"></i> Log</h2>
-    <div id="logContainer" class="log-container"></div>
+    <button id="scanBtn">I²C neu scannen</button>
+    <button id="testBtn">Testmessung</button>
+    <table class="log-table">
+      <thead><tr><th>Zeit</th><th>Level</th><th>Logger</th><th>Adresse</th><th>Attempt</th><th>ms</th><th>Status</th><th>Hot</th><th>Cold</th><th>Delta</th><th>Message</th></tr></thead>
+      <tbody id="logContainer"></tbody>
+    </table>
   </div>
 </div>
 

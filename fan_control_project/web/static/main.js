@@ -35,6 +35,8 @@ const kiInput = document.getElementById('kiInput');
 const kdInput = document.getElementById('kdInput');
 const tempChartCtx = document.getElementById('tempChart').getContext('2d');
 const logContainer = document.getElementById('logContainer');
+const scanBtn = document.getElementById('scanBtn');
+const testBtn = document.getElementById('testBtn');
 
 let postrunRemaining = 0;
 let postrunTimer = null;
@@ -373,12 +375,35 @@ socket.on('logs_update', logs => {
     if (!logContainer) return;
     logContainer.innerHTML = '';
     logs.forEach(entry => {
-        const div = document.createElement('div');
-        div.textContent = entry.message;
-        div.classList.add('log-entry', `log-${entry.level}`);
-        logContainer.appendChild(div);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${entry.time || ''}</td>
+            <td>${entry.level || ''}</td>
+            <td>${entry.name || ''}</td>
+            <td>${entry.sensor_addr || ''}</td>
+            <td>${entry.attempt || ''}</td>
+            <td>${entry.dt_ms || ''}</td>
+            <td>${entry.status || ''}</td>
+            <td>${entry.temp_hot ?? ''}</td>
+            <td>${entry.temp_cold ?? ''}</td>
+            <td>${entry.delta ?? ''}</td>
+            <td>${entry.message || ''}</td>`;
+        logContainer.appendChild(tr);
     });
-    logContainer.scrollTop = logContainer.scrollHeight;
+});
+
+if (scanBtn) {
+    scanBtn.addEventListener('click', () => socket.emit('scan_i2c'));
+}
+if (testBtn) {
+    testBtn.addEventListener('click', () => socket.emit('test_measure'));
+}
+
+socket.on('scan_result', data => {
+    console.log('scan', data);
+});
+socket.on('test_measure_result', data => {
+    console.log('test', data);
 });
 
 if (rebootButton) {

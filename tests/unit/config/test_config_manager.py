@@ -33,3 +33,12 @@ def test_load_config_adds_missing_keys(tmp_config):
     assert all(k in data for k in config_manager.DEFAULT_CONFIG)
     loaded = json.loads(Path(config_manager.CONFIG_PATH).read_text())
     assert all(k in loaded for k in config_manager.DEFAULT_CONFIG)
+
+
+def test_mcp_block_migration(tmp_config):
+    Path(config_manager.CONFIG_PATH).write_text(json.dumps({"mcp9600": {"retries": 3}}))
+    data = config_manager.load_config()
+    mcp = data["mcp9600"]
+    assert mcp["type"] == "K"
+    assert mcp["retries"] == 3
+    assert "backoff_ms" in mcp

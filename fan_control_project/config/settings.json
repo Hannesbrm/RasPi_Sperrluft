@@ -1,0 +1,23 @@
+{
+  "setpoint": 0.0,
+  "alarm_threshold": 0.0,
+  "manual_pwm": 0.0,
+  "alarm_pwm": 100.0,
+  "min_pwm": 20.0,
+  "pwm_pin": 12,
+  "kp": 1.0,
+  "ki": 0.1,
+  "kd": 0.0,
+  "postrun_seconds": 30.0,
+  "swap_sensors": false,
+  "sensor_addresses": ["0x66", "0x67"],
+  "mcp9600": {
+    "type": "K",
+    "filter": 0,
+    "conversion": "continuous",
+    "data_rate": 8,
+    "retries": 2,
+    "backoff_ms": 50,
+    "stale_threshold_count": 5
+  }
+}

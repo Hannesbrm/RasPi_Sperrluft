@@ -15,6 +15,7 @@ from config.logging_config import logger, log_buffer
 from models.system_state import SystemState, Mode
 from config import save_config
 from controller.pid_controller import PIDController
+from controller.sensor_reader import SensorReader
 
 app = Flask(
     __name__,
@@ -31,6 +32,7 @@ state = SystemState()
 
 # Reference to the PID controller (set by app.py)
 pid_controller: PIDController | None = None
+sensor_reader: SensorReader | None = None
 
 # Event used to stop the background thread when the app shuts down
 _stop_event = Event()
@@ -106,6 +108,25 @@ def handle_set_pid_params(data: Dict[str, Any]) -> None:
 def handle_request_logs() -> None:
     """Send the current log buffer to the requesting client."""
     emit("logs_update", list(log_buffer))
+
+
+@socketio.on("scan_i2c")
+def handle_scan_i2c() -> None:
+    """Trigger an I2C bus scan and return the result."""
+    if sensor_reader is None:
+        emit("scan_result", [])
+        return
+    addrs = sensor_reader.scan_bus()
+    emit("scan_result", addrs)
+
+
+@socketio.on("test_measure")
+def handle_test_measure() -> None:
+    """Perform a one-off measurement and return raw data."""
+    if sensor_reader is None:
+        emit("test_measure_result", {})
+        return
+    emit("test_measure_result", sensor_reader.read_all())
 
 
 @socketio.on("request_reboot")
