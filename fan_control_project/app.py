@@ -10,10 +10,11 @@ from config import load_config
 from config.logging_config import logger
 from models.sensor_info import SensorInfo
 
-# Description of connected sensors including I2C addresses and GPIO pins
+# Description of connected sensors including I2C addresses
+# The sensors are connected via the I2C bus and do not use dedicated GPIO pins.
 sensors = [
-    SensorInfo(rom_id="0x66", pin="D24"),
-    SensorInfo(rom_id="0x67", pin="D26"),
+    SensorInfo(rom_id="0x66", pin="I2C"),
+    SensorInfo(rom_id="0x67", pin="I2C"),
 ]
 
 
