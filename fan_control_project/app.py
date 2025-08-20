@@ -1,6 +1,6 @@
 """Entry point for the fan control application."""
 
-# Use the real sensor reader for the MAX31850K sensors
+# Use the real sensor reader for the MCP9600 sensors
 from controller.sensor_reader import SensorReader
 from controller.pid_controller import PIDController
 from controller.pwm_output import FanPWMController
@@ -10,10 +10,10 @@ from config import load_config
 from config.logging_config import logger
 from models.sensor_info import SensorInfo
 
-# Description of connected sensors including ROM IDs and GPIO pins
+# Description of connected sensors including I2C addresses and GPIO pins
 sensors = [
-    SensorInfo(rom_id="3b-68000ec3edfc", pin="D24"),
-    SensorInfo(rom_id="3b-2e141377f2c2", pin="D26"),
+    SensorInfo(rom_id="0x66", pin="D24"),
+    SensorInfo(rom_id="0x67", pin="D26"),
 ]
 
 
@@ -39,7 +39,7 @@ def main() -> None:
     state.kd = float(cfg.get("kd", 0.0))
     state.postrun_seconds = float(cfg.get("postrun_seconds", 30.0))
 
-    # IDs of the connected 1-Wire temperature sensors. Using the order of the
+    # I2C addresses of the connected temperature sensors. Using the order of the
     # ``sensors`` list ensures a stable mapping independent of the startup
     # sequence on the bus.
     state.swap_sensors = bool(cfg.get("swap_sensors", False))
