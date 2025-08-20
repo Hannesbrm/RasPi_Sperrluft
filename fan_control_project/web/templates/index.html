@@ -214,23 +214,98 @@ canvas {
   margin-top: 1rem;
 }
 
-.log-container {
+.log-table-wrapper {
   max-height: 300px;
   overflow-y: auto;
-  background: #f0f0f0;
-  font-family: monospace;
-  padding: 0.5rem;
-  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.log-table {
   width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
 }
 
-.log-entry {
-  margin-bottom: 0.25rem;
+.log-table th,
+.log-table td {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
 }
 
-.log-info { color: #333; }
-.log-warning { color: #b58900; }
-.log-error { color: #d32f2f; }
+.log-table thead th {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  z-index: 1;
+}
+
+.log-table td.log-message {
+  font-family: 'Courier New', monospace;
+  white-space: pre;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.log-table tr.log-info { background-color: #e8f4fd; color: #0c5460; }
+.log-table tr.log-warn { background-color: #fff4e5; color: #664d03; }
+.log-table tr.log-error { background-color: #fdecea; color: #842029; }
+.log-table tr.log-success { background-color: #e6f4ea; color: #0f5132; }
+
+.log-table td:nth-child(5),
+.log-table td:nth-child(6),
+.log-table td:nth-child(8),
+.log-table td:nth-child(9),
+.log-table td:nth-child(10) {
+  text-align: right;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1e1e1e;
+    color: #eee;
+  }
+  header {
+    background-color: #005fa3;
+  }
+  .card {
+    background: #2a2a2a;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .tabs button {
+    background-color: #444;
+    color: #eee;
+  }
+  .tabs button.active {
+    background-color: #005fa3;
+  }
+  input[type="number"], input[type="text"] {
+    background-color: #333;
+    border: 1px solid #555;
+    color: #eee;
+  }
+  button, input[type="submit"] {
+    background-color: #005fa3;
+  }
+  button:hover, input[type="submit"]:hover {
+    background-color: #00467a;
+  }
+  .log-table th,
+  .log-table td {
+    border-bottom: 1px solid #555;
+  }
+  .log-table thead th {
+    background: #333;
+  }
+  .log-table-wrapper {
+    background: #2a2a2a;
+  }
+  .log-table tr.log-info { background-color: #055160; color: #cff4fc; }
+  .log-table tr.log-warn { background-color: #664d03; color: #fff3cd; }
+  .log-table tr.log-error { background-color: #842029; color: #f8d7da; }
+  .log-table tr.log-success { background-color: #0f5132; color: #d1e7dd; }
+}
     </style>
 </head>
 <body>
@@ -360,10 +435,16 @@ canvas {
     <h2><i class="fas fa-file-alt"></i> Log</h2>
     <button id="scanBtn">I²C neu scannen</button>
     <button id="testBtn">Testmessung</button>
-    <table class="log-table">
-      <thead><tr><th>Zeit</th><th>Level</th><th>Logger</th><th>Adresse</th><th>Attempt</th><th>ms</th><th>Status</th><th>Hot</th><th>Cold</th><th>Delta</th><th>Message</th></tr></thead>
-      <tbody id="logContainer"></tbody>
-    </table>
+    <div class="log-table-wrapper" id="logWrapper">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Zeit</th><th>Level</th><th>Logger</th><th>Adresse</th><th>Attempt</th><th>ms</th><th>Status</th><th>Hot</th><th>Cold</th><th>Delta</th><th>Message</th>
+          </tr>
+        </thead>
+        <tbody id="logContainer"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 

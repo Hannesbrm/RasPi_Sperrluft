@@ -35,6 +35,7 @@ const kiInput = document.getElementById('kiInput');
 const kdInput = document.getElementById('kdInput');
 const tempChartCtx = document.getElementById('tempChart').getContext('2d');
 const logContainer = document.getElementById('logContainer');
+const logWrapper = document.getElementById('logWrapper');
 const scanBtn = document.getElementById('scanBtn');
 const testBtn = document.getElementById('testBtn');
 
@@ -375,46 +376,63 @@ socket.on('system_state', data => {
     }
 });
 
+function addLogRow(entry, prepend = false) {
+    if (!logContainer) return;
+    const tr = document.createElement('tr');
+    const level = (entry.level || '').toLowerCase();
+    if (level) tr.classList.add(`log-${level}`);
+
+    const cells = [
+        entry.time || '',
+        entry.level || '',
+        entry.name || '',
+        entry.sensor_addr || '',
+        entry.attempt || '',
+        entry.dt_ms || '',
+        entry.status || '',
+        entry.temp_hot ?? '',
+        entry.temp_cold ?? '',
+        entry.delta ?? '',
+    ];
+
+    cells.forEach(val => {
+        const td = document.createElement('td');
+        td.textContent = val;
+        tr.appendChild(td);
+    });
+
+    const msgTd = document.createElement('td');
+    msgTd.classList.add('log-message');
+    const message = entry.message || '';
+    msgTd.textContent = message;
+    msgTd.title = message;
+    tr.appendChild(msgTd);
+
+    if (prepend) {
+        logContainer.prepend(tr);
+    } else {
+        logContainer.appendChild(tr);
+    }
+
+    while (logContainer.children.length > 200) {
+        logContainer.removeChild(logContainer.lastChild);
+    }
+
+    if (prepend && logWrapper && logWrapper.scrollTop === 0) {
+        logWrapper.scrollTop = 0;
+    }
+}
+
 socket.on('logs_update', logs => {
     if (!logContainer) return;
     logContainer.innerHTML = '';
-    logs.forEach(entry => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${entry.time || ''}</td>
-            <td>${entry.level || ''}</td>
-            <td>${entry.name || ''}</td>
-            <td>${entry.sensor_addr || ''}</td>
-            <td>${entry.attempt || ''}</td>
-            <td>${entry.dt_ms || ''}</td>
-            <td>${entry.status || ''}</td>
-            <td>${entry.temp_hot ?? ''}</td>
-            <td>${entry.temp_cold ?? ''}</td>
-            <td>${entry.delta ?? ''}</td>
-            <td>${entry.message || ''}</td>`;
-        logContainer.appendChild(tr);
-    });
+    logs
+        .sort((a, b) => new Date(b.time) - new Date(a.time))
+        .forEach(entry => addLogRow(entry));
 });
 
 socket.on('log_entry', entry => {
-    if (!logContainer) return;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td>${entry.time || ''}</td>
-        <td>${entry.level || ''}</td>
-        <td>${entry.name || ''}</td>
-        <td>${entry.sensor_addr || ''}</td>
-        <td>${entry.attempt || ''}</td>
-        <td>${entry.dt_ms || ''}</td>
-        <td>${entry.status || ''}</td>
-        <td>${entry.temp_hot ?? ''}</td>
-        <td>${entry.temp_cold ?? ''}</td>
-        <td>${entry.delta ?? ''}</td>
-        <td>${entry.message || ''}</td>`;
-    logContainer.appendChild(tr);
-    while (logContainer.children.length > 200) {
-        logContainer.removeChild(logContainer.firstChild);
-    }
+    addLogRow(entry, true);
 });
 
 if (scanBtn) {
