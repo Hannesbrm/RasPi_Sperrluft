@@ -1,16 +1,23 @@
 {
   "setpoint": 0.0,
   "alarm_threshold": 0.0,
-  "manual_pwm": 0.0,
-  "alarm_pwm": 100.0,
-  "min_pwm": 20.0,
-  "pwm_pin": 12,
+  "manual_percent": 0.0,
+  "alarm_percent": 100.0,
   "kp": 1.0,
   "ki": 0.1,
   "kd": 0.0,
   "postrun_seconds": 30.0,
   "swap_sensors": false,
   "sensor_addresses": ["0x66", "0x67"],
+  "ds3502": {
+    "address": "0x28",
+    "invert": false,
+    "wiper_min": 2,
+    "wiper_max": 125,
+    "slew_rate_pct_per_s": 30,
+    "startup_percent": 0,
+    "safe_low_on_fault": true
+  },
   "mcp9600": {
     "type": "K",
     "filter": 0,

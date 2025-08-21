@@ -11,10 +11,17 @@ CONFIG_PATH = os.path.join(os.path.dirname(__file__), "settings.json")
 DEFAULT_CONFIG: Dict[str, Any] = {
     "setpoint": 0.0,
     "alarm_threshold": 0.0,
-    "manual_pwm": 0.0,
-    "alarm_pwm": 100.0,
-    "min_pwm": 20.0,
-    "pwm_pin": 12,
+    "manual_percent": 0.0,
+    "alarm_percent": 100.0,
+    "ds3502": {
+        "address": "0x28",
+        "invert": False,
+        "wiper_min": 2,
+        "wiper_max": 125,
+        "slew_rate_pct_per_s": 30,
+        "startup_percent": 0,
+        "safe_low_on_fault": True,
+    },
     "kp": 1.0,
     "ki": 0.1,
     "kd": 0.0,
@@ -83,11 +90,9 @@ def save_config(state: SystemState) -> None:
     data = load_config()
     data["setpoint"] = state.setpoint
     data["alarm_threshold"] = state.alarm_threshold
-    data["manual_pwm"] = state.manual_pwm
-    if hasattr(state, "alarm_pwm"):
-        data["alarm_pwm"] = state.alarm_pwm
-    if hasattr(state, "min_pwm"):
-        data["min_pwm"] = state.min_pwm
+    data["manual_percent"] = state.manual_percent
+    if hasattr(state, "alarm_percent"):
+        data["alarm_percent"] = state.alarm_percent
     if hasattr(state, "kp"):
         data["kp"] = state.kp
     if hasattr(state, "ki"):

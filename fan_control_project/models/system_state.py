@@ -23,14 +23,12 @@ class SystemState:
     ambient2: float = 0.0
     delta1: float = 0.0
     delta2: float = 0.0
-    pwm1: float = 0.0
-    pwm2: float = 0.0
+    output_pct: float = 0.0
     setpoint: float = 0.0
     mode: Mode = field(default=Mode.AUTO)
     alarm_threshold: float = 0.0
-    manual_pwm: float = 0.0
-    alarm_pwm: float = 100.0
-    min_pwm: float = 20.0
+    manual_percent: float = 0.0
+    alarm_percent: float = 100.0
     kp: float = 1.0
     ki: float = 0.1
     kd: float = 0.0

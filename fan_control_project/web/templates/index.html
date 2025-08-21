@@ -348,7 +348,7 @@ canvas {
     <div class="value" id="temp1Status">&nbsp;</div>
     <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 2 (<span id="temp2Pin">--</span>): <span id="temp2">--</span> °C</div>
     <div class="value" id="temp2Status">&nbsp;</div>
-    <div class="value"><i class="fas fa-tachometer-alt"></i> PWM: <span id="pwm">--</span> %</div>
+    <div class="value"><i class="fas fa-tachometer-alt"></i> Output: <span id="output">--</span> %</div>
     <div class="value"><i class="fas fa-cogs"></i> Mode: <span id="mode">--</span></div>
     <div class="value"><i class="fas fa-bullseye"></i> Solltemperatur: <span id="setpoint">--</span> °C</div>
     <div class="value"><i class="fas fa-exclamation-triangle"></i> Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
@@ -361,11 +361,11 @@ canvas {
       <span class="slider"></span>
     </label>
 
-    <form id="manualPwmForm" style="display: none;">
-      <label for="manualPwmInput"><i class="fas fa-tachometer-alt"></i> Manueller PWM</label>
-      <input type="number" step="1" min="0" max="100" id="manualPwmInput" placeholder="">
+    <form id="manualOutputForm" style="display: none;">
+      <label for="manualOutputInput"><i class="fas fa-tachometer-alt"></i> Manueller Output</label>
+      <input type="number" step="1" min="0" max="100" id="manualOutputInput" placeholder="">
       <input type="submit" value="Senden">
-      <div class="feedback" id="manualFeedback">✔️ PWM gesendet</div>
+      <div class="feedback" id="manualFeedback">✔️ Output gesendet</div>
     </form>
   </div>
 </div>
@@ -385,17 +385,11 @@ canvas {
       <input type="submit" value="Senden">
       <div class="feedback" id="alarmFeedback">✔️ Alarmgrenze gesendet</div>
     </form>
-    <form id="alarmPwmForm">
-      <label for="alarmPwmInput"><i class="fas fa-bolt"></i> PWM im Alarmmodus (%)</label>
-      <input type="number" step="1" min="0" max="100" id="alarmPwmInput">
+    <form id="alarmOutputForm">
+      <label for="alarmOutputInput"><i class="fas fa-bolt"></i> Output im Alarmmodus (%)</label>
+      <input type="number" step="1" min="0" max="100" id="alarmOutputInput">
       <input type="submit" value="Senden">
-      <div class="feedback" id="alarmPwmFeedback">✔️ Alarm-PWM gesendet</div>
-    </form>
-    <form id="minPwmForm">
-      <label for="minPwmInput"><i class="fas fa-arrow-down"></i> Minimaler PWM (%)</label>
-      <input type="number" step="1" min="0" max="100" id="minPwmInput" placeholder="">
-      <input type="submit" value="Senden">
-      <div class="feedback" id="minPwmFeedback">✔️ Minimal-PWM gesendet</div>
+      <div class="feedback" id="alarmPwmFeedback">✔️ Alarm-Output gesendet</div>
     </form>
     <form id="postrunForm">
       <label for="postrunInput"><i class="fas fa-clock"></i> Nachlaufzeit (s)</label>
