@@ -9,7 +9,7 @@ from typing import Optional, List
 
 from .sensor_reader import SensorReader
 from .pid_controller import PIDController
-from .pwm_output import FanPWMController
+from .ds3502_output import FanDS3502Controller
 from models import SystemState, Mode
 from models.sensor_info import SensorInfo
 from config.logging_config import logger
@@ -23,16 +23,16 @@ class ControlLoop:
         state: SystemState,
         sensor_reader: SensorReader,
         pid_controller: PIDController,
-        pwm_controller: FanPWMController,
+        actuator: FanDS3502Controller,
         sensors: List[SensorInfo],
-        alarm_pwm: float = 100.0,
+        alarm_percent: float = 100.0,
         interval: float = 0.5,
     ) -> None:
         self.state = state
         self.sensor_reader = sensor_reader
         self.pid = pid_controller
-        self.pwm = pwm_controller
-        self.state.alarm_pwm = alarm_pwm
+        self.actuator = actuator
+        self.state.alarm_percent = alarm_percent
         self.interval = interval
         self.sensors = sensors
 
@@ -54,7 +54,7 @@ class ControlLoop:
         if self._thread is not None:
             self._thread.join()
             self._thread = None
-        self.pwm.stop()
+        self.actuator.stop()
         logger.info("Control loop gestoppt")
 
     def _run_loop(self) -> None:
@@ -133,39 +133,38 @@ class ControlLoop:
 
         return alarm, postrun_active
 
-    def _compute_pwm(
+    def _compute_output(
         self, temp1: Optional[float], alarm: bool, postrun_active: bool
     ) -> float:
-        """Compute the PWM value and update the controller."""
+        """Compute the output percentage and update the actuator."""
         if self.state.mode == Mode.MANUAL:
-            pwm_value = self.state.manual_pwm
+            value = self.state.manual_percent
 
         elif self.state.mode == Mode.AUTO:
             if alarm or postrun_active:
-                pwm_value = self.state.alarm_pwm
+                value = self.state.alarm_percent
             elif temp1 is not None:
                 self.pid.update_setpoint(self.state.setpoint)
-                pwm_value = self.pid.compute(temp1)
-                pwm_value = 100.0 - pwm_value
-                pwm_value = max(0.0, min(100.0, pwm_value))
+                value = self.pid.compute(temp1)
+                value = 100.0 - value
+                value = max(0.0, min(100.0, value))
             else:
-                pwm_value = self.state.pwm1
+                value = self.state.output_pct
         else:
-            pwm_value = self.state.pwm1
+            value = self.state.output_pct
 
-        final_value = max(self.pwm.min_pwm, pwm_value)
-        self.pwm.set_pwm(final_value)
-        self.state.pwm1 = final_value
-        return final_value
+        self.actuator.set_output(value)
+        self.state.output_pct = value
+        return value
 
     def update_once(self) -> None:
         """Perform a single control-loop iteration."""
         temp1, temp2 = self._read_temperatures()
         now = datetime.now()
         alarm, postrun_active = self._handle_alarm_state(temp2, now)
-        final_value = self._compute_pwm(temp1, alarm, postrun_active)
+        final_value = self._compute_output(temp1, alarm, postrun_active)
         logger.debug(
-            "PWM berechnet: temp1=%s temp2=%s alarm=%s pwm=%.2f",
+            "Output berechnet: temp1=%s temp2=%s alarm=%s pct=%.2f",
             temp1,
             temp2,
             alarm or postrun_active,

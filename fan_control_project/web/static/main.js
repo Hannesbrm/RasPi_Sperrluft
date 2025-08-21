@@ -6,16 +6,14 @@ const temp1StatusEl = document.getElementById('temp1Status');
 const temp2StatusEl = document.getElementById('temp2Status');
 const temp1PinEl = document.getElementById('temp1Pin');
 const temp2PinEl = document.getElementById('temp2Pin');
-const pwmEl = document.getElementById('pwm');
+const outputEl = document.getElementById('output');
 const modeEl = document.getElementById('mode');
 const modeToggle = document.getElementById('modeToggle');
 const swapToggle = document.getElementById('swapToggle');
-const manualPwmForm = document.getElementById('manualPwmForm');
-const manualPwmInput = document.getElementById('manualPwmInput');
-const alarmPwmForm = document.getElementById('alarmPwmForm');
-const alarmPwmInput = document.getElementById('alarmPwmInput');
-const minPwmForm = document.getElementById('minPwmForm');
-const minPwmInput = document.getElementById('minPwmInput');
+const manualOutputForm = document.getElementById('manualOutputForm');
+const manualOutputInput = document.getElementById('manualOutputInput');
+const alarmOutputForm = document.getElementById('alarmOutputForm');
+const alarmOutputInput = document.getElementById('alarmOutputInput');
 const postrunForm = document.getElementById('postrunForm');
 const postrunInput = document.getElementById('postrunInput');
 const setpointEl = document.getElementById('setpoint');
@@ -46,7 +44,7 @@ const maxPoints = 200;
 const labels = [];
 const temp1Data = [];
 const temp2Data = [];
-const pwmData = [];
+const outputData = [];
 
 const tempChart = new Chart(tempChartCtx, {
     type: 'line',
@@ -68,10 +66,10 @@ const tempChart = new Chart(tempChartCtx, {
                 pointRadius: 0
             },
             {
-                label: 'PWM',
+                label: 'Output',
                 borderColor: 'green',
                 fill: false,
-                data: pwmData,
+                data: outputData,
                 yAxisID: 'y1',
                 pointRadius: 0
             }
@@ -95,7 +93,7 @@ const tempChart = new Chart(tempChartCtx, {
                 position: 'right',
                 title: {
                     display: true,
-                    text: 'PWM (%)'
+                    text: 'Output (%)'
                 },
                 grid: {
                     drawOnChartArea: false
@@ -193,14 +191,14 @@ socket.on('state_update', data => {
     if (data.swap_sensors !== undefined && swapToggle) {
         swapToggle.checked = data.swap_sensors;
     }
-    if (data.pwm1 !== undefined) {
-        pwmEl.textContent = Number(data.pwm1).toFixed(1);
+    if (data.output_pct !== undefined) {
+        outputEl.textContent = Number(data.output_pct).toFixed(1);
     }
     if (data.mode !== undefined) {
         modeEl.textContent = data.mode;
         const manual = data.mode === 'manual';
         modeToggle.checked = manual;
-        manualPwmForm.style.display = manual ? 'block' : 'none';
+        manualOutputForm.style.display = manual ? 'block' : 'none';
     }
     if (data.setpoint !== undefined) {
         const formatted = Number(data.setpoint).toFixed(1);
@@ -212,17 +210,14 @@ socket.on('state_update', data => {
         alarmThresholdEl.textContent = formatted;
         alarmInput.placeholder = formatted;
     }
-    if (data.alarm_pwm !== undefined) {
-        alarmPwmInput.placeholder = Number(data.alarm_pwm).toFixed(0);
-    }
-    if (data.min_pwm !== undefined) {
-        minPwmInput.placeholder = Number(data.min_pwm).toFixed(0);
+    if (data.alarm_percent !== undefined) {
+        alarmOutputInput.placeholder = Number(data.alarm_percent).toFixed(0);
     }
     if (data.postrun_seconds !== undefined) {
         postrunInput.placeholder = Number(data.postrun_seconds).toFixed(0);
     }
-    if (data.manual_pwm !== undefined) {
-        manualPwmInput.placeholder = Number(data.manual_pwm).toFixed(0);
+    if (data.manual_percent !== undefined) {
+        manualOutputInput.placeholder = Number(data.manual_percent).toFixed(0);
     }
     if (data.postrun_remaining !== undefined) {
         updatePostrunCountdown(Math.max(0, Math.round(data.postrun_remaining)));
@@ -260,17 +255,17 @@ socket.on('state_update', data => {
     if (
         data.temperature1 !== undefined &&
         data.temperature2 !== undefined &&
-        data.pwm1 !== undefined
+        data.output_pct !== undefined
     ) {
         labels.push(new Date().toLocaleTimeString());
         temp1Data.push(data.temperature1 === null ? null : parseFloat(data.temperature1));
         temp2Data.push(data.temperature2 === null ? null : parseFloat(data.temperature2));
-        pwmData.push(parseFloat(data.pwm1));
+        outputData.push(parseFloat(data.output_pct));
         if (labels.length > maxPoints) {
             labels.shift();
             temp1Data.shift();
             temp2Data.shift();
-            pwmData.shift();
+            outputData.shift();
         }
         tempChart.update();
     }
@@ -296,33 +291,23 @@ alarmForm.addEventListener('submit', e => {
     }
 });
 
-manualPwmForm.addEventListener('submit', e => {
+manualOutputForm.addEventListener('submit', e => {
     e.preventDefault();
-    const value = parseFloat(manualPwmInput.value);
+    const value = parseFloat(manualOutputInput.value);
     if (!isNaN(value)) {
-        socket.emit('set_manual_pwm', { value });
-        manualPwmInput.value = '';
+        socket.emit('set_manual_percent', { value });
+        manualOutputInput.value = '';
         showFeedback('manualFeedback');
     }
 });
 
-alarmPwmForm.addEventListener('submit', e => {
+alarmOutputForm.addEventListener('submit', e => {
     e.preventDefault();
-    const value = parseFloat(alarmPwmInput.value);
+    const value = parseFloat(alarmOutputInput.value);
     if (!isNaN(value)) {
-        socket.emit('set_alarm_pwm', { value });
-        alarmPwmInput.value = '';
+        socket.emit('set_alarm_percent', { value });
+        alarmOutputInput.value = '';
         showFeedback('alarmPwmFeedback');
-    }
-});
-
-minPwmForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const value = parseFloat(minPwmInput.value);
-    if (!isNaN(value)) {
-        socket.emit('set_min_pwm', { value });
-        minPwmInput.value = '';
-        showFeedback('minPwmFeedback');
     }
 });
 
@@ -357,7 +342,7 @@ pidForm.addEventListener('submit', e => {
 modeToggle.addEventListener('change', () => {
     const mode = modeToggle.checked ? 'manual' : 'auto';
     socket.emit('set_mode', { mode });
-    manualPwmForm.style.display = modeToggle.checked ? 'block' : 'none';
+    manualOutputForm.style.display = modeToggle.checked ? 'block' : 'none';
 });
 
 if (swapToggle) {

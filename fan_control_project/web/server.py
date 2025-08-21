@@ -76,9 +76,8 @@ def handle_connect() -> None:
 
 # Simple state update handlers
 register_state_handler("set_setpoint", "setpoint")
-register_state_handler("set_manual_pwm", "manual_pwm")
-register_state_handler("set_alarm_pwm", "alarm_pwm")
-register_state_handler("set_min_pwm", "min_pwm")
+register_state_handler("set_manual_percent", "manual_percent")
+register_state_handler("set_alarm_percent", "alarm_percent")
 register_state_handler("set_alarm_threshold", "alarm_threshold")
 register_state_handler("set_swap_sensors", "swap_sensors", bool)
 register_state_handler("set_postrun_seconds", "postrun_seconds")

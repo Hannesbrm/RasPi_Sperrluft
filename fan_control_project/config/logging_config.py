@@ -25,6 +25,11 @@ class JsonFormatter(logging.Formatter):
             "temp_hot",
             "temp_cold",
             "delta",
+            "actuator",
+            "addr",
+            "output_pct",
+            "wiper",
+            "slew_applied",
         ):
             if hasattr(record, key):
                 data[key] = getattr(record, key)

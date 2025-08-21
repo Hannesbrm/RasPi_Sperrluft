@@ -37,19 +37,18 @@ def no_save_config(monkeypatch):
 
 
 @pytest.fixture
-def dummy_pwm():
-    class DummyPWM:
-        def __init__(self, min_pwm: float = 0.0):
-            self.min_pwm = min_pwm
+def dummy_actuator():
+    class DummyActuator:
+        def __init__(self):
             self.last_value: float | None = None
 
-        def set_pwm(self, value: float) -> None:
+        def set_output(self, value: float) -> None:
             self.last_value = value
 
         def stop(self) -> None:  # pragma: no cover - nothing to clean up
             pass
 
-    return DummyPWM
+    return DummyActuator
 
 
 @pytest.fixture

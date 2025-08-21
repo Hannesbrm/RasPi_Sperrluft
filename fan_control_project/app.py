@@ -3,7 +3,7 @@
 # Use the real sensor reader for the MCP9600 sensors
 from controller.sensor_reader import SensorReader
 from controller.pid_controller import PIDController
-from controller.pwm_output import FanPWMController
+from controller.ds3502_output import FanDS3502Controller, DS3502Config
 from controller.control_loop import ControlLoop
 from web import server
 from config import load_config
@@ -60,10 +60,8 @@ def main() -> None:
     logger.debug("Konfiguration geladen: %s", cfg)
     state.setpoint = float(cfg.get("setpoint", 0.0))
     state.alarm_threshold = float(cfg.get("alarm_threshold", 0.0))
-    state.manual_pwm = float(cfg.get("manual_pwm", 0.0))
-    state.alarm_pwm = float(cfg.get("alarm_pwm", 100.0))
-    state.min_pwm = float(cfg.get("min_pwm", 20.0))
-    pwm_pin = int(cfg.get("pwm_pin", 12))
+    state.manual_percent = float(cfg.get("manual_percent", 0.0))
+    state.alarm_percent = float(cfg.get("alarm_percent", 100.0))
     state.kp = float(cfg.get("kp", 1.0))
     state.ki = float(cfg.get("ki", 0.1))
     state.kd = float(cfg.get("kd", 0.0))
@@ -96,15 +94,28 @@ def main() -> None:
         sample_time=0.5,
     )
 
-    pwm_controller = FanPWMController(pin=pwm_pin, min_pwm=state.min_pwm)
+    ds_cfg = cfg.get("ds3502", {})
+    addr = int(ds_cfg.get("address", "0x28"), 16)
+    config = DS3502Config(
+        address=addr,
+        invert=bool(ds_cfg.get("invert", False)),
+        wiper_min=int(ds_cfg.get("wiper_min", 0)),
+        wiper_max=int(ds_cfg.get("wiper_max", 127)),
+        slew_rate_pct_per_s=float(ds_cfg.get("slew_rate_pct_per_s", 0.0)),
+        startup_percent=float(ds_cfg.get("startup_percent", 0.0)),
+        safe_low_on_fault=bool(ds_cfg.get("safe_low_on_fault", True)),
+    )
+    actuator = FanDS3502Controller(config)
+    if not actuator.available:
+        logger.error("DS3502 nicht erreichbar, Fail-Safe aktiv", extra={"actuator": "ds3502", "addr": hex(config.address)})
 
     control_loop = ControlLoop(
         state,
         sensor_reader,
         pid,
-        pwm_controller,
+        actuator,
         sensors=sensors,
-        alarm_pwm=state.alarm_pwm,
+        alarm_percent=state.alarm_percent,
     )
     control_loop.start()
     logger.info("Steuerung gestartet")

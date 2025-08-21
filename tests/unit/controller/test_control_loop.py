@@ -10,14 +10,14 @@ from models.sensor_info import SensorInfo
 
 
 @pytest.fixture
-def loop_factory(dummy_sensor_reader, dummy_pid, dummy_pwm):
-    def _create_loop(state=None, sensor_data=None, pid=None, pwm=None, sensors=None):
+def loop_factory(dummy_sensor_reader, dummy_pid, dummy_actuator):
+    def _create_loop(state=None, sensor_data=None, pid=None, actuator=None, sensors=None):
         state = state or SystemState()
         pid = pid or dummy_pid()
-        pwm = pwm or dummy_pwm()
+        actuator = actuator or dummy_actuator()
         sensors = sensors or [SensorInfo("id1", "pin1"), SensorInfo("id2", "pin2")]
         reader = dummy_sensor_reader(sensor_data or {})
-        return ControlLoop(state, reader, pid, pwm, sensors)
+        return ControlLoop(state, reader, pid, actuator, sensors)
 
     return _create_loop
 
@@ -54,19 +54,19 @@ def test_handle_alarm_state_sets_flags_and_postrun(loop_factory):
     assert state.postrun_until == now + datetime.timedelta(seconds=10.0)
 
 
-def test_compute_pwm_manual_and_auto(loop_factory, dummy_pwm):
-    state = SystemState(mode=Mode.MANUAL, manual_pwm=30.0, min_pwm=20.0)
-    pwm = dummy_pwm(min_pwm=20.0)
-    loop = loop_factory(state=state, pwm=pwm)
-    result = loop._compute_pwm(None, False, False)
+def test_compute_output_manual_and_auto(loop_factory, dummy_actuator):
+    state = SystemState(mode=Mode.MANUAL, manual_percent=30.0)
+    act = dummy_actuator()
+    loop = loop_factory(state=state, actuator=act)
+    result = loop._compute_output(None, False, False)
     assert result == 30.0
-    assert pwm.last_value == 30.0
+    assert act.last_value == 30.0
 
     state.mode = Mode.AUTO
-    state.alarm_pwm = 80.0
-    result = loop._compute_pwm(25.0, True, False)
+    state.alarm_percent = 80.0
+    result = loop._compute_output(25.0, True, False)
     assert result == 80.0
-    assert pwm.last_value == 80.0
+    assert act.last_value == 80.0
 
 
 def test_start_and_stop_runs_thread(loop_factory, monkeypatch):
@@ -112,16 +112,16 @@ def test_handle_alarm_state_postrun_expiry(loop_factory):
     assert state.postrun_until is None
 
 
-def test_compute_pwm_temp_none_and_invalid_mode(loop_factory, dummy_pwm):
-    state = SystemState(mode=Mode.AUTO, pwm1=55.0, min_pwm=10.0)
-    pwm = dummy_pwm(min_pwm=10.0)
-    loop = loop_factory(state=state, pwm=pwm)
-    result = loop._compute_pwm(None, False, False)
+def test_compute_output_temp_none_and_invalid_mode(loop_factory, dummy_actuator):
+    state = SystemState(mode=Mode.AUTO, output_pct=55.0)
+    act = dummy_actuator()
+    loop = loop_factory(state=state, actuator=act)
+    result = loop._compute_output(None, False, False)
     assert result == 55.0
     state.mode = "other"
-    state.pwm1 = 5.0
-    result = loop._compute_pwm(30.0, False, False)
-    assert result == 10.0  # min_pwm enforced
+    state.output_pct = 5.0
+    result = loop._compute_output(30.0, False, False)
+    assert result == 5.0
 
 
 def test_run_loop_calls_update_once(loop_factory, monkeypatch):
