@@ -4,7 +4,7 @@ import os
 from collections import deque
 from typing import Callable
 
-__all__ = ["logger", "log_buffer", "set_log_callback"]
+__all__ = ["logger", "log_buffer", "set_log_callback", "setup_logging"]
 
 
 class JsonFormatter(logging.Formatter):
@@ -36,13 +36,9 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(data)
 
 
-level = os.getenv("LOG_LEVEL", "INFO").upper()
-logging.basicConfig(level=level)
-
 logger = logging.getLogger("fan_control")
 
 log_buffer: deque[dict[str, object]] = deque(maxlen=200)
-
 
 _log_callback: "Callable[[dict[str, object]], None] | None" = None
 
@@ -68,9 +64,18 @@ class WebLogHandler(logging.Handler):
 
 
 _json_formatter = JsonFormatter()
-for handler in logging.getLogger().handlers:
-    handler.setFormatter(_json_formatter)
 
-_web_handler = WebLogHandler()
-_web_handler.setFormatter(_json_formatter)
-logger.addHandler(_web_handler)
+
+def setup_logging() -> None:
+    """Configure logging and ensure handlers are added only once."""
+    level = os.getenv("LOG_LEVEL", "INFO").upper()
+    logging.basicConfig(level=level)
+    root = logging.getLogger()
+    for handler in root.handlers:
+        handler.setFormatter(_json_formatter)
+    logger.setLevel(level)
+
+    if not any(isinstance(h, WebLogHandler) for h in logger.handlers):
+        web_handler = WebLogHandler()
+        web_handler.setFormatter(_json_formatter)
+        logger.addHandler(web_handler)
