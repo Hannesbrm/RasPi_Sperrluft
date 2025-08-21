@@ -7,15 +7,10 @@ from controller.ds3502_output import FanDS3502Controller, DS3502Config
 from controller.control_loop import ControlLoop
 from web import server
 from config import load_config
-from config.logging_config import logger
+from config.logging_config import logger, setup_logging
 from models.sensor_info import SensorInfo
 
-# Description of connected sensors including I2C addresses
-# The sensors are connected via the I2C bus and do not use dedicated GPIO pins.
-sensors = [
-    SensorInfo(rom_id="0x66", pin="I2C"),
-    SensorInfo(rom_id="0x67", pin="I2C"),
-]
+setup_logging()
 
 
 def _system_checks() -> None:
@@ -67,11 +62,12 @@ def main() -> None:
     state.kd = float(cfg.get("kd", 0.0))
     state.postrun_seconds = float(cfg.get("postrun_seconds", 30.0))
 
-    # I2C addresses of the connected temperature sensors. Using the order of the
-    # ``sensors`` list ensures a stable mapping independent of the startup
-    # sequence on the bus.
     state.swap_sensors = bool(cfg.get("swap_sensors", False))
-    sensor_ids = cfg.get("sensor_addresses", []) or [s.rom_id for s in sensors]
+    sensor_ids = cfg.get("sensor_addresses", [])
+    if not sensor_ids:
+        sensor_ids = ["0x66", "0x67"]
+        logger.info("Sensorliste aus Konfiguration fehlt, verwende Fallback %s", sensor_ids)
+    sensors = [SensorInfo(rom_id=sid, pin="I2C") for sid in sensor_ids]
     mcp_params = cfg.get("mcp9600", {})
     sensor_reader = SensorReader(sensor_ids, mcp_params=mcp_params)
 

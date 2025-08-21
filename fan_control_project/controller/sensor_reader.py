@@ -125,6 +125,7 @@ class SensorReader:
                 delta = hot - cold
                 dt_ms = int((time.perf_counter() - start) * 1000)
 
+                prev_status = state.status
                 if state.temperature == hot:
                     state.stale_count += 1
                 else:
@@ -135,18 +136,19 @@ class SensorReader:
                 state.status = "ok"
                 if state.stale_count >= self.stale_threshold:
                     state.status = "stale"
-                logger.info(
-                    "Sensor gelesen",
-                    extra={
-                        "sensor_addr": addr_str,
-                        "attempt": attempt,
-                        "dt_ms": dt_ms,
-                        "status": state.status,
-                        "temp_hot": hot,
-                        "temp_cold": cold,
-                        "delta": delta,
-                    },
-                )
+                extra = {
+                    "sensor_addr": addr_str,
+                    "attempt": attempt,
+                    "dt_ms": dt_ms,
+                    "status": state.status,
+                    "temp_hot": hot,
+                    "temp_cold": cold,
+                    "delta": delta,
+                }
+                if state.status != prev_status:
+                    logger.info("Sensor gelesen", extra=extra)
+                else:
+                    logger.debug("Sensor gelesen", extra=extra)
                 return state
             except OSError as exc:
                 err = getattr(exc, "errno", exc.args[0] if exc.args else None)
