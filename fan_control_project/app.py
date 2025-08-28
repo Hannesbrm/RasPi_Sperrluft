@@ -91,12 +91,11 @@ def main() -> None:
     )
 
     ds_cfg = cfg.get("ds3502", {})
-    addr = int(ds_cfg.get("address", "0x28"), 16)
     config = DS3502Config(
-        address=addr,
+        address=ds_cfg.get("address", "0x28"),
         invert=bool(ds_cfg.get("invert", False)),
-        wiper_min=int(ds_cfg.get("wiper_min", 0)),
-        wiper_max=int(ds_cfg.get("wiper_max", 127)),
+        wiper_min=int(ds_cfg.get("wiper_min", 2)),
+        wiper_max=int(ds_cfg.get("wiper_max", 125)),
         slew_rate_pct_per_s=float(ds_cfg.get("slew_rate_pct_per_s", 0.0)),
         startup_percent=float(ds_cfg.get("startup_percent", 0.0)),
         safe_low_on_fault=bool(ds_cfg.get("safe_low_on_fault", True)),
