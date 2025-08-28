@@ -35,6 +35,26 @@ def test_set_pid_params_handler(socketio_client, state, no_save_config, monkeypa
     server.pid_controller = None
 
 
+def test_set_wiper_min_handler(socketio_client, state, no_save_config):
+    class DummyActuator:
+        def __init__(self):
+            self.cfg = type("Cfg", (), {"wiper_min": 0})()
+            self.last_percent = 0.0
+            self.called = False
+
+        def set_output(self, pct: float) -> None:
+            self.called = True
+            self.last_percent = pct
+
+    server.actuator = DummyActuator()
+    socketio_client.emit("set_wiper_min", {"value": 5})
+    socketio_client.get_received()
+    assert state.wiper_min == 5
+    assert server.actuator.cfg.wiper_min == 5
+    assert server.actuator.called
+    server.actuator = None
+
+
 def test_request_logs_handler(socketio_client):
     log_buffer.clear()
     log_buffer.append({"message": "entry", "level": "info"})

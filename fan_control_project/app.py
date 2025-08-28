@@ -62,6 +62,8 @@ def main() -> None:
     state.kd = float(cfg.get("kd", 0.0))
     state.postrun_seconds = float(cfg.get("postrun_seconds", 30.0))
 
+    ds_cfg = cfg.get("ds3502", {})
+    state.wiper_min = int(ds_cfg.get("wiper_min", 2))
     state.swap_sensors = bool(cfg.get("swap_sensors", False))
     sensor_ids = cfg.get("sensor_addresses", [])
     if not sensor_ids:
@@ -90,7 +92,6 @@ def main() -> None:
         sample_time=0.5,
     )
 
-    ds_cfg = cfg.get("ds3502", {})
     config = DS3502Config(
         address=ds_cfg.get("address", "0x28"),
         invert=bool(ds_cfg.get("invert", False)),
@@ -101,6 +102,7 @@ def main() -> None:
         safe_low_on_fault=bool(ds_cfg.get("safe_low_on_fault", True)),
     )
     actuator = FanDS3502Controller(config)
+    server.actuator = actuator
     if not actuator.available:
         logger.error("DS3502 nicht erreichbar, Fail-Safe aktiv", extra={"actuator": "ds3502", "addr": hex(config.address)})
 

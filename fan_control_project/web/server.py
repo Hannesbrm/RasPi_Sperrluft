@@ -16,6 +16,7 @@ from models.system_state import SystemState, Mode
 from config import save_config
 from controller.pid_controller import PIDController
 from controller.sensor_reader import SensorReader
+from controller.ds3502_output import FanDS3502Controller
 
 app = Flask(
     __name__,
@@ -41,6 +42,7 @@ state = SystemState()
 # Reference to the PID controller (set by app.py)
 pid_controller: PIDController | None = None
 sensor_reader: SensorReader | None = None
+actuator: FanDS3502Controller | None = None
 
 # Event used to stop the background thread when the app shuts down
 _stop_event = Event()
@@ -81,6 +83,17 @@ register_state_handler("set_alarm_percent", "alarm_percent")
 register_state_handler("set_alarm_threshold", "alarm_threshold")
 register_state_handler("set_swap_sensors", "swap_sensors", bool)
 register_state_handler("set_postrun_seconds", "postrun_seconds")
+
+
+@socketio.on("set_wiper_min")
+def handle_set_wiper_min(data: Dict[str, Any]) -> None:
+    value = int(data.get("value", state.wiper_min))
+    state.wiper_min = value
+    save_config(state)
+    if actuator is not None:
+        actuator.cfg.wiper_min = value
+        actuator.set_output(actuator.last_percent)
+    logger.info("wiper_min geaendert auf %s", value)
 
 
 @socketio.on("set_mode")
