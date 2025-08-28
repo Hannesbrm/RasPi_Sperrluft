@@ -44,16 +44,22 @@ header {
   margin-top: 0.25rem;
 }
 
-.reboot-btn {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
+  .reboot-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  .theme-toggle {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+  }
 
 main {
   display: flex;
@@ -261,55 +267,60 @@ canvas {
   text-align: right;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #1e1e1e;
-    color: #eee;
-  }
-  header {
-    background-color: #005fa3;
-  }
-  .card {
-    background: #2a2a2a;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  }
-  .tabs button {
-    background-color: #444;
-    color: #eee;
-  }
-  .tabs button.active {
-    background-color: #005fa3;
-  }
-  input[type="number"], input[type="text"] {
-    background-color: #333;
-    border: 1px solid #555;
-    color: #eee;
-  }
-  button, input[type="submit"] {
-    background-color: #005fa3;
-  }
-  button:hover, input[type="submit"]:hover {
-    background-color: #00467a;
-  }
-  .log-table th,
-  .log-table td {
-    border-bottom: 1px solid #555;
-  }
-  .log-table thead th {
-    background: #333;
-  }
-  .log-table-wrapper {
-    background: #2a2a2a;
-  }
-  .log-table tr.log-info { background-color: #055160; color: #cff4fc; }
-  .log-table tr.log-warn { background-color: #664d03; color: #fff3cd; }
-  .log-table tr.log-error { background-color: #842029; color: #f8d7da; }
-  .log-table tr.log-success { background-color: #0f5132; color: #d1e7dd; }
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #eee;
 }
+body.dark-mode header {
+  background-color: #005fa3;
+}
+body.dark-mode .card {
+  background: #2a2a2a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+body.dark-mode .tabs button {
+  background-color: #444;
+  color: #eee;
+}
+body.dark-mode .tabs button.active {
+  background-color: #005fa3;
+}
+body.dark-mode input[type="number"],
+body.dark-mode input[type="text"] {
+  background-color: #333;
+  border: 1px solid #555;
+  color: #eee;
+}
+body.dark-mode button,
+body.dark-mode input[type="submit"] {
+  background-color: #005fa3;
+}
+body.dark-mode button:hover,
+body.dark-mode input[type="submit"]:hover {
+  background-color: #00467a;
+}
+body.dark-mode .log-table th,
+body.dark-mode .log-table td {
+  border-bottom: 1px solid #555;
+}
+body.dark-mode .log-table thead th {
+  background: #333;
+}
+body.dark-mode .log-table-wrapper {
+  background: #2a2a2a;
+}
+body.dark-mode .log-table tr.log-info { background-color: #055160; color: #cff4fc; }
+body.dark-mode .log-table tr.log-warn { background-color: #664d03; color: #fff3cd; }
+body.dark-mode .log-table tr.log-error { background-color: #842029; color: #f8d7da; }
+body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1e7dd; }
     </style>
 </head>
 <body>
 <header id="main-header">
+  <label class="switch theme-toggle">
+    <input type="checkbox" id="darkModeToggle">
+    <span class="slider"></span>
+  </label>
   <div class="header-container">
     <h1><i class="fas fa-fan"></i> Sperrluft Steuerung</h1>
     <div id="alarmIndicator" class="alarm-box safe">

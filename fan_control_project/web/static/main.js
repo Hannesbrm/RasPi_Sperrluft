@@ -25,6 +25,7 @@ const postrunCountdownEl = document.getElementById('postrunCountdown');
 const postrunSecondsEl = document.getElementById('postrunSeconds');
 const mainHeader = document.getElementById('main-header');
 const rebootButton = document.getElementById('rebootButton');
+const darkModeToggle = document.getElementById('darkModeToggle');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
 const pidForm = document.getElementById('pidForm');
@@ -104,6 +105,25 @@ const tempChart = new Chart(tempChartCtx, {
         }
     }
 });
+
+if (darkModeToggle) {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.checked = true;
+    }
+
+    darkModeToggle.addEventListener('change', () => {
+        if (darkModeToggle.checked) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+        }
+    });
+}
 
 socket.on('connect', () => {
     socket.emit('request_logs');
