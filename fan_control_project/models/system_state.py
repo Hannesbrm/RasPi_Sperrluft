@@ -29,6 +29,7 @@ class SystemState:
     alarm_threshold: float = 0.0
     manual_percent: float = 0.0
     alarm_percent: float = 100.0
+    wiper_min: int = 2
     kp: float = 1.0
     ki: float = 0.1
     kd: float = 0.0

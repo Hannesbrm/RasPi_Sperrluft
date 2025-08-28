@@ -402,6 +402,12 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
       <input type="submit" value="Senden">
       <div class="feedback" id="alarmPwmFeedback">✔️ Alarm-Output gesendet</div>
     </form>
+    <form id="minOutputForm">
+      <label for="minOutputInput"><i class="fas fa-tachometer-alt"></i> Minimaler Output (Wiper)</label>
+      <input type="number" step="1" min="0" max="127" id="minOutputInput">
+      <input type="submit" value="Senden">
+      <div class="feedback" id="minOutputFeedback">✔️ Minimaler Output gesendet</div>
+    </form>
     <form id="postrunForm">
       <label for="postrunInput"><i class="fas fa-clock"></i> Nachlaufzeit (s)</label>
       <input type="number" step="1" min="0" id="postrunInput" placeholder="">

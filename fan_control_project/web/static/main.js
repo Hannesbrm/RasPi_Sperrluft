@@ -14,6 +14,8 @@ const manualOutputForm = document.getElementById('manualOutputForm');
 const manualOutputInput = document.getElementById('manualOutputInput');
 const alarmOutputForm = document.getElementById('alarmOutputForm');
 const alarmOutputInput = document.getElementById('alarmOutputInput');
+const minOutputForm = document.getElementById('minOutputForm');
+const minOutputInput = document.getElementById('minOutputInput');
 const postrunForm = document.getElementById('postrunForm');
 const postrunInput = document.getElementById('postrunInput');
 const setpointEl = document.getElementById('setpoint');
@@ -233,6 +235,9 @@ socket.on('state_update', data => {
     if (data.alarm_percent !== undefined) {
         alarmOutputInput.placeholder = Number(data.alarm_percent).toFixed(0);
     }
+    if (data.wiper_min !== undefined) {
+        minOutputInput.placeholder = Number(data.wiper_min).toFixed(0);
+    }
     if (data.postrun_seconds !== undefined) {
         postrunInput.placeholder = Number(data.postrun_seconds).toFixed(0);
     }
@@ -328,6 +333,16 @@ alarmOutputForm.addEventListener('submit', e => {
         socket.emit('set_alarm_percent', { value });
         alarmOutputInput.value = '';
         showFeedback('alarmPwmFeedback');
+    }
+});
+
+minOutputForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const value = parseFloat(minOutputInput.value);
+    if (!isNaN(value)) {
+        socket.emit('set_wiper_min', { value });
+        minOutputInput.value = '';
+        showFeedback('minOutputFeedback');
     }
 });
 
