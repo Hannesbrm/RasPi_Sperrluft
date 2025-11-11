@@ -29,6 +29,7 @@ const mainHeader = document.getElementById('main-header');
 const rebootButton = document.getElementById('rebootButton');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const tcTypeSelect = document.getElementById('tcTypeSelect');
+const tcTypeStatusEl = document.getElementById('tcTypeStatus');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
 const pidForm = document.getElementById('pidForm');
@@ -245,8 +246,15 @@ socket.on('state_update', data => {
     if (data.manual_percent !== undefined) {
         manualOutputInput.placeholder = Number(data.manual_percent).toFixed(0);
     }
-    if (data.thermocouple_type !== undefined && tcTypeSelect) {
-        tcTypeSelect.value = data.thermocouple_type;
+    if (data.thermocouple_type !== undefined) {
+        const tcType = String(data.thermocouple_type).toUpperCase();
+        if (tcTypeSelect) {
+            tcTypeSelect.value = tcType;
+        }
+        if (tcTypeStatusEl) {
+            const tcLabels = { K: 'Typ K', S: 'Typ S' };
+            tcTypeStatusEl.textContent = tcLabels[tcType] || `Typ ${tcType}`;
+        }
     }
     if (data.postrun_remaining !== undefined) {
         updatePostrunCountdown(Math.max(0, Math.round(data.postrun_remaining)));
