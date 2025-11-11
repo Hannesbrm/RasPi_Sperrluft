@@ -41,16 +41,19 @@ class SystemState:
     swap_sensors: bool = False
     postrun_until: Optional[datetime] = None
     alarm_active: bool = False
+    thermocouple_type: str = "K"
 
     def __post_init__(self) -> None:
         if not isinstance(self.mode, Mode):
             self.mode = Mode(self.mode)
+        self.thermocouple_type = str(self.thermocouple_type).upper()
 
     def as_dict(self) -> Dict[str, Any]:
         """Return a dictionary representation of the state."""
 
         data = asdict(self)
         data["mode"] = self.mode.value
+        data["thermocouple_type"] = str(self.thermocouple_type).upper()
         remaining = 0
         if self.postrun_until is not None:
             remaining = int((self.postrun_until - datetime.now()).total_seconds())

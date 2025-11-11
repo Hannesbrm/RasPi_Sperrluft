@@ -130,7 +130,7 @@ label {
   font-size: 0.95rem;
 }
 
-input[type="number"], input[type="text"] {
+input[type="number"], input[type="text"], select {
   width: 100%;
   padding: 0.6rem;
   border: 1px solid #ccc;
@@ -286,7 +286,8 @@ body.dark-mode .tabs button.active {
   background-color: #005fa3;
 }
 body.dark-mode input[type="number"],
-body.dark-mode input[type="text"] {
+body.dark-mode input[type="text"],
+body.dark-mode select {
   background-color: #333;
   border: 1px solid #555;
   color: #eee;
@@ -416,6 +417,13 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
     </form>
 
     <hr style="margin: 1.5rem 0;">
+
+    <label for="tcTypeSelect"><i class="fas fa-thermometer"></i> Thermoelement-Typ</label>
+    <select id="tcTypeSelect">
+      <option value="K">Typ K</option>
+      <option value="S">Typ S</option>
+    </select>
+    <div class="feedback" id="tcTypeFeedback">✔️ Thermoelement-Typ gesetzt</div>
 
     <label for="swapToggle"><i class="fas fa-exchange-alt"></i> Sensorrollen tauschen</label>
     <label class="switch">

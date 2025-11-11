@@ -28,6 +28,7 @@ const postrunSecondsEl = document.getElementById('postrunSeconds');
 const mainHeader = document.getElementById('main-header');
 const rebootButton = document.getElementById('rebootButton');
 const darkModeToggle = document.getElementById('darkModeToggle');
+const tcTypeSelect = document.getElementById('tcTypeSelect');
 const setpointInput = document.getElementById('setpointInput');
 const alarmInput = document.getElementById('alarmInput');
 const pidForm = document.getElementById('pidForm');
@@ -244,6 +245,9 @@ socket.on('state_update', data => {
     if (data.manual_percent !== undefined) {
         manualOutputInput.placeholder = Number(data.manual_percent).toFixed(0);
     }
+    if (data.thermocouple_type !== undefined && tcTypeSelect) {
+        tcTypeSelect.value = data.thermocouple_type;
+    }
     if (data.postrun_remaining !== undefined) {
         updatePostrunCountdown(Math.max(0, Math.round(data.postrun_remaining)));
     }
@@ -383,6 +387,13 @@ modeToggle.addEventListener('change', () => {
 if (swapToggle) {
     swapToggle.addEventListener('change', () => {
         socket.emit('set_swap_sensors', { value: swapToggle.checked });
+    });
+}
+
+if (tcTypeSelect) {
+    tcTypeSelect.addEventListener('change', () => {
+        socket.emit('set_thermocouple_type', { value: tcTypeSelect.value });
+        showFeedback('tcTypeFeedback');
     });
 }
 

@@ -52,6 +52,7 @@ class SensorReader:
         }
         if mcp_params:
             self.config.update(mcp_params)
+        self.config["type"] = str(self.config.get("type", "K")).upper()
         logger.info("MCP9600 Konfiguration: %s", self.config)
 
         self.retries = int(self.config.get("retries", 0))
@@ -72,6 +73,31 @@ class SensorReader:
             self.sensors.append((addr_str, addr_int, sensor))
             self._states[addr_str] = _SensorState(status="not_found" if sensor is None else "ok")
         logger.debug("Sensoradressen initialisiert: %s", [(s[0], hex(s[1])) for s in self.sensors])
+
+    def set_thermocouple_type(self, tc_type: str) -> None:
+        """Update the thermocouple type and recreate sensor instances."""
+
+        tc = str(tc_type).upper()
+        if tc == self.config.get("type"):
+            logger.debug("Thermoelement-Typ unveraendert: %s", tc)
+            return
+
+        logger.info("Thermoelement-Typ wechselt von %s auf %s", self.config.get("type"), tc)
+        self.config["type"] = tc
+
+        for idx, (addr_str, addr_int, _sensor) in enumerate(self.sensors):
+            sensor = self._create_sensor(addr_int)
+            self.sensors[idx] = (addr_str, addr_int, sensor)
+            state = self._states.setdefault(addr_str, _SensorState())
+            if sensor is None:
+                state.status = "not_found"
+                state.temperature = None
+                state.ambient = None
+                state.delta = None
+                state.stale_count = 0
+            else:
+                state.status = "ok"
+                state.stale_count = 0
 
     # ------------------------------------------------------------------
     def _apply_config(self, sensor: Any) -> None:
