@@ -96,6 +96,22 @@ def handle_set_wiper_min(data: Dict[str, Any]) -> None:
     logger.info("wiper_min geaendert auf %s", value)
 
 
+@socketio.on("set_thermocouple_type")
+def handle_set_thermocouple_type(data: Dict[str, Any]) -> None:
+    value = str(data.get("value", state.thermocouple_type or "K")).upper()
+    if value not in {"K", "S"}:
+        logger.warning("Unbekannter Thermoelement-Typ: %s", value)
+        return
+    if state.thermocouple_type == value:
+        logger.debug("Thermoelement-Typ unveraendert: %s", value)
+        return
+    state.thermocouple_type = value
+    if sensor_reader is not None:
+        sensor_reader.set_thermocouple_type(value)
+    save_config(state)
+    logger.info("Thermoelement-Typ geaendert auf %s", value)
+
+
 @socketio.on("set_mode")
 def handle_set_mode(data: Dict[str, Any]) -> None:
     mode = data.get("mode")

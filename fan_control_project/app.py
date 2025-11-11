@@ -70,7 +70,10 @@ def main() -> None:
         sensor_ids = ["0x66", "0x67"]
         logger.info("Sensorliste aus Konfiguration fehlt, verwende Fallback %s", sensor_ids)
     sensors = [SensorInfo(rom_id=sid, pin="I2C") for sid in sensor_ids]
-    mcp_params = cfg.get("mcp9600", {})
+    mcp_params = dict(cfg.get("mcp9600", {}))
+    tc_type = str(mcp_params.get("type", "K")).upper()
+    mcp_params["type"] = tc_type
+    state.thermocouple_type = tc_type
     sensor_reader = SensorReader(sensor_ids, mcp_params=mcp_params)
 
     found = sensor_reader.scan_bus()

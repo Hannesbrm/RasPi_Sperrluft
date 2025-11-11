@@ -107,6 +107,12 @@ def save_config(state: SystemState) -> None:
         ds_cfg = data.get("ds3502", {})
         ds_cfg["wiper_min"] = int(state.wiper_min)
         data["ds3502"] = ds_cfg
+    if hasattr(state, "thermocouple_type"):
+        mcp_cfg = data.get("mcp9600", {})
+        if not isinstance(mcp_cfg, dict):
+            mcp_cfg = {}
+        mcp_cfg["type"] = str(state.thermocouple_type).upper()
+        data["mcp9600"] = mcp_cfg
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
     logger.info("Konfiguration gespeichert: %s", data)
