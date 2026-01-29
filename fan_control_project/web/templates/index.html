@@ -3,13 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>Fan Control</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <script src="/static/vendor/chart.min.js"></script>
     <style>
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", "Roboto", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   background-color: #f4f6f8;
   color: #222;
   margin: 0;
@@ -103,7 +101,12 @@ main {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.tabs button i {
+.tabs button .icon {
+  margin-right: 0.4rem;
+}
+
+.icon {
+  display: inline-block;
   margin-right: 0.4rem;
 }
 
@@ -323,7 +326,7 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
     <span class="slider"></span>
   </label>
   <div class="header-container">
-    <h1><i class="fas fa-fan"></i> Sperrluft Steuerung</h1>
+    <h1><span class="icon" aria-hidden="true">🌀</span>Sperrluft Steuerung</h1>
     <div id="alarmIndicator" class="alarm-box safe">
       <span class="icon">🟢</span> Kein Alarm
     </div>
@@ -336,46 +339,46 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
 
 <main>
   <div class="card">
-    <h2><i class="fas fa-chart-line"></i> Temperatur &amp; Output</h2>
+    <h2><span class="icon" aria-hidden="true">📈</span>Temperatur &amp; Output</h2>
     <canvas id="tempChart" width="400" height="200"></canvas>
   </div>
 
   <div class="tabs">
     <button class="tab-button active" data-tab="statusTab">
-      <i class="fas fa-info-circle"></i> Status
+      <span class="icon" aria-hidden="true">ℹ️</span>Status
     </button>
     <button class="tab-button" data-tab="settingsTab">
-      <i class="fas fa-sliders-h"></i> Einstellungen
+      <span class="icon" aria-hidden="true">🎛️</span>Einstellungen
     </button>
     <button class="tab-button" data-tab="logTab">
-      <i class="fas fa-file-alt"></i> Log
+      <span class="icon" aria-hidden="true">📄</span>Log
     </button>
   </div>
 </main>
 
 <div id="statusTab" class="tab-content active">
   <div class="card">
-    <h2><i class="fas fa-info-circle"></i> Status</h2>
-    <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 1 (<span id="temp1Pin">--</span>): <span id="temp1">--</span> °C</div>
+    <h2><span class="icon" aria-hidden="true">ℹ️</span>Status</h2>
+    <div class="value"><span class="icon" aria-hidden="true">🌡️</span>Temperature 1 (<span id="temp1Pin">--</span>): <span id="temp1">--</span> °C</div>
     <div class="value" id="temp1Status">&nbsp;</div>
-    <div class="value"><i class="fas fa-thermometer-half"></i> Temperature 2 (<span id="temp2Pin">--</span>): <span id="temp2">--</span> °C</div>
+    <div class="value"><span class="icon" aria-hidden="true">🌡️</span>Temperature 2 (<span id="temp2Pin">--</span>): <span id="temp2">--</span> °C</div>
     <div class="value" id="temp2Status">&nbsp;</div>
-    <div class="value"><i class="fas fa-tachometer-alt"></i> Output: <span id="output">--</span> %</div>
-    <div class="value"><i class="fas fa-cogs"></i> Mode: <span id="mode">--</span></div>
-    <div class="value"><i class="fas fa-bullseye"></i> Solltemperatur: <span id="setpoint">--</span> °C</div>
-    <div class="value"><i class="fas fa-exclamation-triangle"></i> Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
-    <div class="value"><i class="fas fa-thermometer"></i> Thermoelement-Typ: <span id="tcTypeStatus">--</span></div>
+    <div class="value"><span class="icon" aria-hidden="true">📟</span>Output: <span id="output">--</span> %</div>
+    <div class="value"><span class="icon" aria-hidden="true">⚙️</span>Mode: <span id="mode">--</span></div>
+    <div class="value"><span class="icon" aria-hidden="true">🎯</span>Solltemperatur: <span id="setpoint">--</span> °C</div>
+    <div class="value"><span class="icon" aria-hidden="true">⚠️</span>Alarmgrenze: <span id="alarmThreshold">--</span> °C</div>
+    <div class="value"><span class="icon" aria-hidden="true">🌡️</span>Thermoelement-Typ: <span id="tcTypeStatus">--</span></div>
 
     <hr style="margin: 1.5rem 0;">
 
-    <label for="modeToggle"><i class="fas fa-hand-paper"></i> Manueller Modus</label>
+    <label for="modeToggle"><span class="icon" aria-hidden="true">✋</span>Manueller Modus</label>
     <label class="switch">
       <input type="checkbox" id="modeToggle">
       <span class="slider"></span>
     </label>
 
     <form id="manualOutputForm" style="display: none;">
-      <label for="manualOutputInput"><i class="fas fa-tachometer-alt"></i> Manueller Output</label>
+      <label for="manualOutputInput"><span class="icon" aria-hidden="true">📟</span>Manueller Output</label>
       <input type="number" step="1" min="0" max="100" id="manualOutputInput" placeholder="">
       <input type="submit" value="Senden">
       <div class="feedback" id="manualFeedback">✔️ Output gesendet</div>
@@ -385,33 +388,33 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
 
 <div id="settingsTab" class="tab-content">
   <div class="card">
-    <h2><i class="fas fa-sliders-h"></i> Einstellungen</h2>
+    <h2><span class="icon" aria-hidden="true">🎛️</span>Einstellungen</h2>
     <form id="setpointForm">
-      <label for="setpointInput"><i class="fas fa-bullseye"></i> Solltemperatur</label>
+      <label for="setpointInput"><span class="icon" aria-hidden="true">🎯</span>Solltemperatur</label>
       <input type="number" step="0.1" id="setpointInput" placeholder="">
       <input type="submit" value="Senden">
       <div class="feedback" id="setpointFeedback">✔️ Sollwert gesendet</div>
     </form>
     <form id="alarmForm">
-      <label for="alarmInput"><i class="fas fa-exclamation-triangle"></i> Alarmgrenze</label>
+      <label for="alarmInput"><span class="icon" aria-hidden="true">⚠️</span>Alarmgrenze</label>
       <input type="number" step="0.1" id="alarmInput" placeholder="">
       <input type="submit" value="Senden">
       <div class="feedback" id="alarmFeedback">✔️ Alarmgrenze gesendet</div>
     </form>
     <form id="alarmOutputForm">
-      <label for="alarmOutputInput"><i class="fas fa-bolt"></i> Output im Alarmmodus (%)</label>
+      <label for="alarmOutputInput"><span class="icon" aria-hidden="true">⚡</span>Output im Alarmmodus (%)</label>
       <input type="number" step="1" min="0" max="100" id="alarmOutputInput">
       <input type="submit" value="Senden">
       <div class="feedback" id="alarmPwmFeedback">✔️ Alarm-Output gesendet</div>
     </form>
     <form id="minOutputForm">
-      <label for="minOutputInput"><i class="fas fa-tachometer-alt"></i> Minimaler Output (Wiper)</label>
+      <label for="minOutputInput"><span class="icon" aria-hidden="true">📟</span>Minimaler Output (Wiper)</label>
       <input type="number" step="1" min="0" max="127" id="minOutputInput">
       <input type="submit" value="Senden">
       <div class="feedback" id="minOutputFeedback">✔️ Minimaler Output gesendet</div>
     </form>
     <form id="postrunForm">
-      <label for="postrunInput"><i class="fas fa-clock"></i> Nachlaufzeit (s)</label>
+      <label for="postrunInput"><span class="icon" aria-hidden="true">⏱️</span>Nachlaufzeit (s)</label>
       <input type="number" step="1" min="0" id="postrunInput" placeholder="">
       <input type="submit" value="Senden">
       <div class="feedback" id="postrunFeedback">✔️ Nachlaufzeit gesendet</div>
@@ -419,14 +422,14 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
 
     <hr style="margin: 1.5rem 0;">
 
-    <label for="tcTypeSelect"><i class="fas fa-thermometer"></i> Thermoelement-Typ</label>
+    <label for="tcTypeSelect"><span class="icon" aria-hidden="true">🌡️</span>Thermoelement-Typ</label>
     <select id="tcTypeSelect">
       <option value="K">Typ K</option>
       <option value="S">Typ S</option>
     </select>
     <div class="feedback" id="tcTypeFeedback">✔️ Thermoelement-Typ gesetzt</div>
 
-    <label for="swapToggle"><i class="fas fa-exchange-alt"></i> Sensorrollen tauschen</label>
+    <label for="swapToggle"><span class="icon" aria-hidden="true">🔁</span>Sensorrollen tauschen</label>
     <label class="switch">
       <input type="checkbox" id="swapToggle">
       <span class="slider"></span>
@@ -436,7 +439,7 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
   </div>
 
   <div class="card">
-    <h2><i class="fas fa-tools"></i> PID-Werte</h2>
+    <h2><span class="icon" aria-hidden="true">🛠️</span>PID-Werte</h2>
     <form id="pidForm">
       <label for="kpInput">Kp</label>
       <input type="number" step="0.01" id="kpInput" placeholder="">
@@ -452,7 +455,7 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
 
 <div id="logTab" class="tab-content">
   <div class="card">
-    <h2><i class="fas fa-file-alt"></i> Log</h2>
+    <h2><span class="icon" aria-hidden="true">📄</span>Log</h2>
     <button id="scanBtn">I²C neu scannen</button>
     <button id="testBtn">Testmessung</button>
     <div class="log-table-wrapper" id="logWrapper">
