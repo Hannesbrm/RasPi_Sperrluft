@@ -436,6 +436,17 @@ body.dark-mode .log-table tr.log-success { background-color: #0f5132; color: #d1
     </label>
     <div class="value">Temperature 1: <span id="temp1PinSetting">--</span></div>
     <div class="value">Temperature 2: <span id="temp2PinSetting">--</span></div>
+
+    <hr style="margin: 1.5rem 0;">
+
+    <label for="smoothingToggle"><span class="icon" aria-hidden="true">🧹</span>Temperatur-Glättung</label>
+    <label class="switch">
+      <input type="checkbox" id="smoothingToggle">
+      <span class="slider"></span>
+    </label>
+    <label for="smoothingAlphaInput"><span class="icon" aria-hidden="true">🎚️</span>Stärke (Alpha): <span id="smoothingAlphaValue">0.30</span></label>
+    <input type="range" id="smoothingAlphaInput" min="0.05" max="1" step="0.05">
+    <div class="feedback" id="smoothingFeedback">✔️ Glättung aktualisiert</div>
   </div>
 
   <div class="card">

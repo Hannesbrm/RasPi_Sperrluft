@@ -42,6 +42,8 @@ class SystemState:
     postrun_until: Optional[datetime] = None
     alarm_active: bool = False
     thermocouple_type: str = "K"
+    smoothing_enabled: bool = True
+    smoothing_alpha: float = 0.3
 
     def __post_init__(self) -> None:
         if not isinstance(self.mode, Mode):
@@ -62,4 +64,3 @@ class SystemState:
         data["postrun_remaining"] = remaining
         data.pop("postrun_until", None)
         return data
-

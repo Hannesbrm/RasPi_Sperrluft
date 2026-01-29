@@ -27,6 +27,8 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "kd": 0.0,
     "postrun_seconds": 30.0,
     "swap_sensors": False,
+    "smoothing_enabled": True,
+    "smoothing_alpha": 0.3,
     # I2C sensor addresses as hex strings
     "sensor_addresses": ["0x66", "0x67"],
     # Default configuration for the MCP9600 sensors
@@ -103,6 +105,10 @@ def save_config(state: SystemState) -> None:
         data["postrun_seconds"] = state.postrun_seconds
     if hasattr(state, "swap_sensors"):
         data["swap_sensors"] = state.swap_sensors
+    if hasattr(state, "smoothing_enabled"):
+        data["smoothing_enabled"] = bool(state.smoothing_enabled)
+    if hasattr(state, "smoothing_alpha"):
+        data["smoothing_alpha"] = float(state.smoothing_alpha)
     if hasattr(state, "wiper_min"):
         ds_cfg = data.get("ds3502", {})
         ds_cfg["wiper_min"] = int(state.wiper_min)

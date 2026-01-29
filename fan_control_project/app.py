@@ -61,6 +61,8 @@ def main() -> None:
     state.ki = float(cfg.get("ki", 0.1))
     state.kd = float(cfg.get("kd", 0.0))
     state.postrun_seconds = float(cfg.get("postrun_seconds", 30.0))
+    state.smoothing_enabled = bool(cfg.get("smoothing_enabled", True))
+    state.smoothing_alpha = float(cfg.get("smoothing_alpha", 0.3))
 
     ds_cfg = cfg.get("ds3502", {})
     state.wiper_min = int(ds_cfg.get("wiper_min", 2))
@@ -132,4 +134,3 @@ def main() -> None:
 if __name__ == "__main__":
     _system_checks()
     main()
-

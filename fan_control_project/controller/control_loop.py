@@ -38,6 +38,35 @@ class ControlLoop:
 
         self._thread: Optional[threading.Thread] = None
         self._running = False
+        self._ema_temp1: Optional[float] = None
+        self._ema_temp2: Optional[float] = None
+
+    def _apply_smoothing(
+        self,
+        temp1: Optional[float],
+        temp2: Optional[float],
+    ) -> tuple[Optional[float], Optional[float]]:
+        """Apply exponential moving average smoothing if enabled."""
+        if not self.state.smoothing_enabled:
+            self._ema_temp1 = None
+            self._ema_temp2 = None
+            return temp1, temp2
+
+        alpha = max(0.01, min(1.0, float(self.state.smoothing_alpha)))
+
+        if temp1 is not None:
+            if self._ema_temp1 is None:
+                self._ema_temp1 = temp1
+            else:
+                self._ema_temp1 = alpha * temp1 + (1.0 - alpha) * self._ema_temp1
+
+        if temp2 is not None:
+            if self._ema_temp2 is None:
+                self._ema_temp2 = temp2
+            else:
+                self._ema_temp2 = alpha * temp2 + (1.0 - alpha) * self._ema_temp2
+
+        return self._ema_temp1, self._ema_temp2
 
     def start(self) -> None:
         """Start the control loop in a background thread."""
@@ -93,10 +122,12 @@ class ControlLoop:
         self.state.status1 = status1
         self.state.status2 = status2
 
-        if temp1 is not None:
-            self.state.temperature1 = temp1
-        if temp2 is not None:
-            self.state.temperature2 = temp2
+        smooth_temp1, smooth_temp2 = self._apply_smoothing(temp1, temp2)
+
+        if smooth_temp1 is not None:
+            self.state.temperature1 = smooth_temp1
+        if smooth_temp2 is not None:
+            self.state.temperature2 = smooth_temp2
         if amb1 is not None:
             self.state.ambient1 = amb1
         if amb2 is not None:
@@ -106,6 +137,8 @@ class ControlLoop:
         if delta2 is not None:
             self.state.delta2 = delta2
 
+        if self.state.smoothing_enabled:
+            return smooth_temp1, smooth_temp2
         return temp1, temp2
 
     def _handle_alarm_state(

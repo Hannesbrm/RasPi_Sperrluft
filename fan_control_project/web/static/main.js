@@ -41,6 +41,9 @@ const logContainer = document.getElementById('logContainer');
 const logWrapper = document.getElementById('logWrapper');
 const scanBtn = document.getElementById('scanBtn');
 const testBtn = document.getElementById('testBtn');
+const smoothingToggle = document.getElementById('smoothingToggle');
+const smoothingAlphaInput = document.getElementById('smoothingAlphaInput');
+const smoothingAlphaValue = document.getElementById('smoothingAlphaValue');
 
 let postrunRemaining = 0;
 let postrunTimer = null;
@@ -256,6 +259,16 @@ socket.on('state_update', data => {
             tcTypeStatusEl.textContent = tcLabels[tcType] || `Typ ${tcType}`;
         }
     }
+    if (data.smoothing_enabled !== undefined && smoothingToggle) {
+        smoothingToggle.checked = Boolean(data.smoothing_enabled);
+    }
+    if (data.smoothing_alpha !== undefined && smoothingAlphaInput) {
+        const alpha = Number(data.smoothing_alpha);
+        smoothingAlphaInput.value = alpha.toFixed(2);
+        if (smoothingAlphaValue) {
+            smoothingAlphaValue.textContent = alpha.toFixed(2);
+        }
+    }
     if (data.postrun_remaining !== undefined) {
         updatePostrunCountdown(Math.max(0, Math.round(data.postrun_remaining)));
     }
@@ -405,6 +418,28 @@ if (tcTypeSelect) {
     });
 }
 
+if (smoothingToggle) {
+    smoothingToggle.addEventListener('change', () => {
+        socket.emit('set_smoothing_enabled', { value: smoothingToggle.checked });
+        showFeedback('smoothingFeedback');
+    });
+}
+
+if (smoothingAlphaInput) {
+    smoothingAlphaInput.addEventListener('input', () => {
+        if (smoothingAlphaValue) {
+            smoothingAlphaValue.textContent = Number(smoothingAlphaInput.value).toFixed(2);
+        }
+    });
+    smoothingAlphaInput.addEventListener('change', () => {
+        const value = parseFloat(smoothingAlphaInput.value);
+        if (!isNaN(value)) {
+            socket.emit('set_smoothing_alpha', { value });
+            showFeedback('smoothingFeedback');
+        }
+    });
+}
+
 // Listen for system state updates to adjust header color
 socket.on('system_state', data => {
     if (!mainHeader) return;
@@ -499,4 +534,3 @@ if (rebootButton) {
 socket.on('reboot_ack', () => {
     alert('wird neu gestartet...');
 });
-

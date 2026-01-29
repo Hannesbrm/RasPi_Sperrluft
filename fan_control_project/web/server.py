@@ -83,6 +83,16 @@ register_state_handler("set_alarm_percent", "alarm_percent")
 register_state_handler("set_alarm_threshold", "alarm_threshold")
 register_state_handler("set_swap_sensors", "swap_sensors", bool)
 register_state_handler("set_postrun_seconds", "postrun_seconds")
+register_state_handler("set_smoothing_enabled", "smoothing_enabled", bool)
+
+
+@socketio.on("set_smoothing_alpha")
+def handle_set_smoothing_alpha(data: Dict[str, Any]) -> None:
+    value = float(data.get("value", state.smoothing_alpha))
+    value = max(0.01, min(1.0, value))
+    state.smoothing_alpha = value
+    save_config(state)
+    logger.info("smoothing_alpha geaendert auf %s", value)
 
 
 @socketio.on("set_wiper_min")
