@@ -293,13 +293,13 @@ socket.on('state_update', data => {
         }
     }
     if (data.kp !== undefined) {
-        kpInput.placeholder = Number(data.kp).toFixed(2);
+        kpInput.placeholder = Number(data.kp).toFixed(5);
     }
     if (data.ki !== undefined) {
-        kiInput.placeholder = Number(data.ki).toFixed(2);
+        kiInput.placeholder = Number(data.ki).toFixed(5);
     }
     if (data.kd !== undefined) {
-        kdInput.placeholder = Number(data.kd).toFixed(2);
+        kdInput.placeholder = Number(data.kd).toFixed(5);
     }
 
     if (
